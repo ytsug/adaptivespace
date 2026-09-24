@@ -3,582 +3,394 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AdaptiveSpace — Equal Access, Not Just Equal Content</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<title>AdaptiveSpace — Study Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#FBF3E7; --bg-panel:#FFFFFF; --bg-deep:#F3E5D0;
-  --ink:#2B2420; --ink-soft:#6B5F52;
-  --accent:#3F6357; --accent-soft:#DCE8E3;
-  --terra:#C1693C; --terra-soft:#F2DCCB;
-  --line:#E4D3B8;
-  --font-head:'Lexend',sans-serif; --font-body:'Atkinson Hyperlegible',sans-serif;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#20241F; --bg-panel:#2A2E27; --bg-deep:#171B15;
-    --ink:#EFEAE0; --ink-soft:#B7AF9F;
-    --accent:#8FBBAA; --accent-soft:#33443C;
-    --terra:#E3A279; --terra-soft:#3B2C22;
-    --line:#3B3B32;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#20241F; --bg-panel:#2A2E27; --bg-deep:#171B15;
-  --ink:#EFEAE0; --ink-soft:#B7AF9F;
-  --accent:#8FBBAA; --accent-soft:#33443C;
-  --terra:#E3A279; --terra-soft:#3B2C22;
-  --line:#3B3B32;
-}
-html{scroll-padding-top:env(safe-area-inset-top,0px);}
-*{box-sizing:border-box;}
-body{
-  margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body);
-  font-size:17px; line-height:1.6; transition:background .3s ease,color .3s ease;
-}
-body.zen{ --bg:#F4E8D3; --bg-panel:#FBF2E2; --ink:#3A2E20; --ink-soft:#7A6A52; --line:#E6D3AE; }
-img{max-width:100%;}
-.wrap{max-width:1040px; margin:0 auto; padding:0 24px;}
-header.top{position:sticky; top:0; z-index:20; backdrop-filter:blur(6px); background:color-mix(in srgb, var(--bg) 88%, transparent); border-bottom:1px solid var(--line);}
-.topbar{display:flex; align-items:center; justify-content:space-between; padding:16px 24px; max-width:1040px; margin:0 auto;}
-.brand{font-family:var(--font-head); font-weight:600; font-size:19px; letter-spacing:.2px;}
-.brand span{color:var(--accent);}
-.zen-toggle{display:flex; align-items:center; gap:10px; font-size:14px; color:var(--ink-soft);}
-.switch{position:relative; width:46px; height:26px; background:var(--line); border-radius:20px; border:none; cursor:pointer; padding:0;}
-.switch::after{content:"";position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:var(--bg-panel); box-shadow:0 1px 2px rgba(0,0,0,.2); transition:left .2s ease;}
-.switch[aria-pressed="true"]{background:var(--accent);}
-.switch[aria-pressed="true"]::after{left:23px;}
-.switch:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
-
-section{padding:64px 0;}
-.hero{padding:72px 0 48px;}
-.hero-grid{display:grid; grid-template-columns:1.1fr 1fr; gap:48px; align-items:center;}
-@media (max-width:820px){.hero-grid{grid-template-columns:1fr;}}
-.eyebrow{font-family:var(--font-head); font-size:14px; color:var(--terra); font-weight:600; margin-bottom:14px;}
-h1{font-family:var(--font-head); font-size:clamp(34px,4.6vw,52px); line-height:1.12; font-weight:700; margin:0 0 20px; max-width:14ch;}
-h1 em{font-style:normal; color:var(--accent);}
-.lede{font-size:19px; color:var(--ink-soft); max-width:46ch; margin:0 0 28px;}
-.cta-row{display:flex; gap:14px; flex-wrap:wrap;}
-.btn{font-family:var(--font-head); font-weight:600; font-size:15px; padding:13px 22px; border-radius:10px; border:1px solid transparent; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px;}
-.btn-primary{background:var(--accent); color:var(--bg-panel);}
-.btn-primary:hover{opacity:.92;}
-.btn-ghost{background:transparent; border-color:var(--line); color:var(--ink);}
-.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
-
-.mock-canvas{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:0 10px 30px rgba(43,36,32,.08);}
-.mock-canvas .mc-head{display:flex; gap:8px; margin-bottom:16px;}
-.mock-canvas .mc-head span{width:10px; height:10px; border-radius:50%; background:var(--line);}
-.mc-block{border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px; font-size:15px;}
-.mc-block.done{background:var(--accent-soft); text-decoration:line-through; color:var(--ink-soft);}
-.mc-block .mc-time{float:right; font-size:12px; color:var(--ink-soft); text-decoration:none;}
-
-.barriers{background:var(--bg-deep); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
-.b-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
-@media (max-width:760px){.b-grid{grid-template-columns:1fr;}}
-.b-card h3{font-family:var(--font-head); font-size:18px; margin:0 0 8px;}
-.b-card p{color:var(--ink-soft); margin:0; font-size:15.5px;}
-.b-card .b-tag{display:inline-block; font-size:13px; color:var(--terra); font-weight:700; margin-bottom:10px;}
-
-.section-head{max-width:60ch; margin-bottom:32px;}
-.section-head h2{font-family:var(--font-head); font-size:clamp(26px,3vw,34px); margin:0 0 10px;}
-.section-head p{color:var(--ink-soft); margin:0; font-size:16.5px;}
-
-.demo-panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
-.demo-grid{display:grid; grid-template-columns:1fr 1fr;}
-@media (max-width:760px){.demo-grid{grid-template-columns:1fr;}}
-.demo-col{padding:26px;}
-.demo-col + .demo-col{border-left:1px solid var(--line);}
-@media (max-width:760px){.demo-col + .demo-col{border-left:none; border-top:1px solid var(--line);}}
-.demo-label{font-family:var(--font-head); font-weight:600; font-size:14px; color:var(--ink-soft); margin-bottom:12px;}
-textarea{width:100%; min-height:220px; resize:vertical; border:1px solid var(--line); border-radius:10px; padding:14px; font-family:var(--font-body); font-size:15px; color:var(--ink); background:var(--bg); line-height:1.5;}
-textarea:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
-.demo-actions{margin-top:14px; display:flex; gap:12px; align-items:center;}
-.hint{font-size:13px; color:var(--ink-soft);}
-
-.out-objective{background:var(--accent-soft); border-radius:10px; padding:14px 16px; font-size:16px; margin-bottom:18px;}
-.out-objective strong{display:block; font-size:12px; text-transform:none; color:var(--accent); font-family:var(--font-head); margin-bottom:4px;}
-
-.game-bar{display:flex; align-items:center; gap:14px; margin-bottom:16px;}
-.progress-track{flex:1; height:10px; border-radius:6px; background:var(--line); overflow:hidden;}
-.progress-fill{height:100%; width:0%; background:var(--accent); border-radius:6px; transition:width .45s ease;}
-.streak-pill,.xp-pill{font-family:var(--font-head); font-weight:600; font-size:13px; white-space:nowrap; display:flex; align-items:center; gap:4px;}
-.streak-pill{color:var(--terra);}
-.xp-pill{color:var(--accent);}
-
-.checklist{list-style:none; margin:0 0 18px; padding:0;}
-.checklist li{display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:9px; padding:10px 12px; margin-bottom:8px; font-size:15px; cursor:pointer; transition:background .2s ease;}
-.checklist li:hover{border-color:var(--accent);}
-.checklist li.step-done{background:var(--accent-soft);}
-.checklist li.step-done .step-text{text-decoration:line-through; color:var(--ink-soft);}
-.checklist .step-check{width:22px; height:22px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--bg-panel); transition:background .2s ease, border-color .2s ease;}
-.checklist li.step-done .step-check{background:var(--accent); border-color:var(--accent);}
-.checklist .step-text{flex:1;}
-.checklist .est{font-size:12.5px; color:var(--ink-soft); white-space:nowrap;}
-.jargon-list{margin:0; padding:0; list-style:none;}
-.jargon-list li{padding:10px 0; border-top:1px solid var(--line); font-size:15px;}
-.jargon-list li:first-child{border-top:none;}
-.jargon-term{font-weight:700; color:var(--terra);}
-.jargon-def{color:var(--ink-soft); display:block; margin-top:2px;}
-.placeholder-note{color:var(--ink-soft); font-size:14.5px;}
-#listenBtn.speaking{background:var(--terra-soft); border-color:var(--terra); color:var(--terra);}
-
-.simplifier-panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:26px;}
-.simp-input{width:100%; min-height:90px; resize:vertical; border:1px solid var(--line); border-radius:10px; padding:14px; font-family:var(--font-body); font-size:15px; color:var(--ink); background:var(--bg); line-height:1.5;}
-.simp-input:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
-.simp-actions{margin-top:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
-.simp-out{margin-top:20px; background:var(--terra-soft); border-radius:12px; padding:20px 22px; display:none;}
-.simp-out.show{display:block;}
-.simp-out .simp-label{font-family:var(--font-head); font-weight:600; font-size:12px; color:var(--terra); margin-bottom:8px;}
-.simp-out .simp-line{font-family:var(--font-head); font-size:20px; font-weight:600; line-height:1.4; color:var(--ink);}
-.simp-out .simp-tools{margin-top:12px; display:flex; gap:10px;}
-.simp-out .simp-tools button{font-size:13px; padding:7px 14px;}
-
-.deserializer{display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;}
-@media (max-width:760px){.deserializer{grid-template-columns:1fr;}}
-.photo-mock{background:var(--bg-deep); border:1px solid var(--line); border-radius:14px; padding:20px; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center;}
-.photo-mock svg{width:100%; height:100%;}
-.outline-mock{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:20px;}
-.outline-mock ol{margin:0; padding-left:20px;}
-.outline-mock li{margin-bottom:10px; font-size:15px;}
-.outline-mock li strong{display:block; font-size:13px; color:var(--accent); font-family:var(--font-head);}
-
-footer{border-top:1px solid var(--line); padding:36px 0 48px;}
-.foot-row{display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; color:var(--ink-soft); font-size:14px; align-items:center;}
-.foot-row .btn{padding:10px 18px;}
-
-.mic-btn{padding:10px 16px; font-size:14px;}
-.mic-btn.listening{background:var(--terra-soft); border-color:var(--terra); color:var(--terra); animation:mic-pulse 1.2s ease-in-out infinite;}
-@keyframes mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(193,105,60,.35);}50%{box-shadow:0 0 0 9px rgba(193,105,60,0);}}
-@media (prefers-reduced-motion: reduce){.mic-btn.listening{animation:none;}}
-.mascot-toast{position:fixed; bottom:22px; right:22px; max-width:290px; background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:0 14px 34px rgba(43,36,32,.18); display:flex; gap:12px; align-items:flex-start; transform:translateY(16px) scale(.97); opacity:0; pointer-events:none; transition:transform .3s ease, opacity .3s ease; z-index:60;}
-.mascot-toast.show{transform:translateY(0) scale(1); opacity:1; pointer-events:auto;}
-.mascot-toast .mascot-icon{width:46px; height:46px; flex-shrink:0;}
-.mascot-toast .mascot-icon svg{animation:mascot-bob 1.8s ease-in-out infinite;}
-@keyframes mascot-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
-.mascot-toast .mascot-body{font-size:13.5px; line-height:1.4; padding-right:14px;}
-.mascot-toast .mascot-body strong{display:block; font-family:var(--font-head); font-size:14px; margin-bottom:2px;}
-.mascot-toast .mascot-close{position:absolute; top:8px; right:10px; background:none; border:none; color:var(--ink-soft); font-size:15px; cursor:pointer; line-height:1;}
-.mascot-toast .mascot-close:focus-visible{outline:2px solid var(--accent);}
-
-@media (prefers-reduced-motion: reduce){*{transition:none !important;} .mascot-toast .mascot-icon svg{animation:none;}}
+/* Light mode (default) */
+:root{--bg:#FAF9F6;--surface:#FFFFFF;--text:#333333;--text-muted:#5F6B76;--accent:#1D4E89;--accent-hover:#163A66;--on-accent:#FFFFFF;--success:#2E7D32;--warning:#B45309;--error:#B3261E;--border:#E3E0D8;--focus:#1D4E89;color-scheme:light;
+--fh:'Lexend',system-ui,sans-serif;--fb:'Atkinson Hyperlegible',system-ui,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+/* Derived from the tokens above so they follow light/dark automatically.
+   --border is only a soft divider (1.25:1), so anything you tap or type in uses --control (3:1+) instead. */
+:root{--control:color-mix(in srgb,var(--text-muted) 75%,var(--bg));--track:color-mix(in srgb,var(--text) 14%,var(--surface));--alt:color-mix(in srgb,var(--text) 6%,var(--surface));--accent-soft:color-mix(in srgb,var(--accent) 10%,var(--surface));--success-soft:color-mix(in srgb,var(--success) 10%,var(--surface));--warning-soft:color-mix(in srgb,var(--warning) 10%,var(--surface))}
+/* Dark mode: follows the system unless the toggle says otherwise */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1E1E1E;--surface:#262626;--text:#E0E0E0;--text-muted:#A3A3A3;--accent:#7FA9DB;--accent-hover:#93BCE6;--on-accent:#1E1E1E;--success:#81C784;--warning:#E8B44A;--error:#F28B82;--border:#3A3A3A;--focus:#8AB4F8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1E1E1E;--surface:#262626;--text:#E0E0E0;--text-muted:#A3A3A3;--accent:#7FA9DB;--accent-hover:#93BCE6;--on-accent:#1E1E1E;--success:#81C784;--warning:#E8B44A;--error:#F28B82;--border:#3A3A3A;--focus:#8AB4F8;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 var(--fb);transition:background .3s,color .3s}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+::placeholder{color:var(--text-muted);opacity:1}
+input[type=checkbox],input[type=range]{accent-color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;max-width:1120px;margin:0 auto}
+.brand{font:600 19px var(--fh)}.brand span{color:var(--accent)}
+.tg{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-muted)}
+.switch{position:relative;width:46px;height:26px;background:var(--control);border-radius:20px;border:0;cursor:pointer;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--surface);transition:left .2s}
+.switch[aria-pressed=true]{background:var(--accent)}.switch[aria-pressed=true]::after{left:23px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 1px 3px color-mix(in srgb,var(--text) 8%,transparent)}
+h2{font:600 17px var(--fh);margin:0 0 12px}
+.stats{display:flex;gap:18px;align-items:center;margin:20px 0;flex-wrap:wrap}
+.owl{width:52px;height:52px;flex-shrink:0}
+.lvl{font:700 20px var(--fh)}
+.xpw{flex:1;min-width:200px}.xpw small{color:var(--text-muted);font-size:13px}
+.track{height:12px;background:var(--track);border-radius:8px;overflow:hidden;margin-top:4px}
+.fill{height:100%;background:var(--accent);border-radius:8px;transition:width .45s}
+.streak{font:600 18px var(--fh);color:var(--warning);white-space:nowrap}
+.badges{display:flex;gap:6px;flex-wrap:wrap;width:100%}
+.bd{font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px dashed var(--control);color:var(--text-muted)}
+.bd.on{background:var(--warning-soft);border:1px solid var(--warning);color:var(--text);font-weight:700}
+.layout{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:start;padding-bottom:48px}
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+.stack{display:grid;gap:20px}
+.two{display:grid;grid-template-columns:1fr;gap:20px} /* stacked: side-by-side squeezed task names into mid-word breaks */
+.qa{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px}
+.qa #tTitle{grid-column:1/-1}
+.qa #addBtn{grid-column:auto}
+@media (max-width:560px){.qa{grid-template-columns:1fr 1fr}.qa #addBtn{grid-column:1/-1}}
+input,select,textarea{background:var(--bg);border:1px solid var(--control);border-radius:10px;padding:9px 11px;min-width:0;width:100%}
+textarea{min-height:130px;resize:vertical;font-size:15px}
+.btn{font:600 14px var(--fh);padding:10px 18px;border-radius:10px;border:1px solid transparent;cursor:pointer;background:var(--accent);color:var(--on-accent);width:auto}
+.btn:hover{background:var(--accent-hover)}
+.btn.g{background:transparent;border-color:var(--control);color:var(--text)}
+.btn.g:hover{background:var(--accent-soft)}
+.flt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;font-size:14px;color:var(--text-muted)}
+.flt select{width:auto;padding:6px 8px}
+ul{list-style:none;margin:0;padding:0}
+.task{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:9px 10px;margin-bottom:8px;background:var(--bg)}
+.task.done{background:var(--success-soft)}.task.done .tn{text-decoration:line-through;color:var(--text-muted)}
+.ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--control);background:none;color:transparent;cursor:pointer;flex-shrink:0;font-size:13px;padding:0}
+.done .ck{background:var(--success);border-color:var(--success);color:var(--on-accent)}
+.tt{flex:1;min-width:0}.tn{font-weight:700;overflow-wrap:anywhere}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.chip{font-size:12px;padding:1px 9px;border-radius:20px;background:var(--alt);border:1px solid var(--border);color:var(--text-muted)}
+.chip.od{background:var(--warning-soft);color:var(--text);border-color:var(--warning)}
+.p-high{background:var(--warning-soft);color:var(--text);border-color:var(--warning)}.p-medium{background:var(--accent-soft);color:var(--text);border-color:var(--accent)}
+.ib{background:none;border:0;cursor:pointer;color:var(--text-muted);font-size:16px;padding:4px 6px;border-radius:6px}
+.ib:hover{color:var(--accent)}.ib[data-a=d]:hover{color:var(--error)}
+.empty,.note{color:var(--text-muted);font-size:14.5px;padding:6px 2px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{flex:1;padding:8px;border-radius:10px;border:1px solid var(--control);background:none;cursor:pointer;font:600 14px var(--fh)}
+.tab:hover{background:var(--accent-soft)}
+.tab[aria-selected=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.row input[type=file]{font-size:13px;flex:1;border:0;padding:0;background:none}
+#cvOut{margin-top:14px}
+#cvOut svg{width:100%;height:auto;background:var(--alt);border-radius:12px}
+.bul{padding-left:0}.bul li{padding:8px 12px;margin-bottom:6px;background:var(--accent-soft);border-radius:10px;font-size:15.5px}
+#tts{display:none;margin-top:10px;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+#tts select{width:auto;padding:6px 8px}#tts input{width:110px;padding:0}
+#speak.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
+.toast{position:fixed;bottom:20px;right:20px;max-width:290px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 30px 12px 12px;box-shadow:0 14px 34px rgba(0,0,0,.2);display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(14px);pointer-events:none;transition:.3s;z-index:60;font-size:14px}
+.toast.show{opacity:1;transform:none;pointer-events:auto}.toast .owl{width:40px;height:40px}
+.toast b{display:block;font-family:var(--fh)}
+.toast button{position:absolute;top:6px;right:8px;background:none;border:0;color:var(--text-muted);cursor:pointer}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:70;opacity:0;visibility:hidden;transition:.25s}
+.ov.show{opacity:1;visibility:visible}
+.cel{background:var(--surface);border-radius:20px;padding:30px;max-width:330px;text-align:center}
+.cel .owl{width:84px;height:84px;animation:bob 1s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-4deg)}}
+.cel h3{font:600 22px var(--fh);margin:10px 0 6px}.cel p{color:var(--text-muted);margin:0 0 18px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.cel .owl{animation:none}}
+body{zoom:var(--fs,1);line-height:var(--lh,1.5);letter-spacing:var(--ls,0)}
+body.lexend{--fb:var(--fh)}
+.cf{position:relative}.cf summary{cursor:pointer;font:600 14px var(--fh);padding:6px 12px;border:1px solid var(--control);border-radius:10px;list-style:none;color:var(--text)}
+.cfp{position:absolute;right:0;top:44px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:grid;gap:10px;width:260px;z-index:30;box-shadow:0 10px 30px rgba(0,0,0,.15);color:var(--text)}
+.cfp .btn{padding:6px 12px}.cfp label{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--text)}.cfp input{width:auto}
+.next{border:2px solid var(--accent);margin-bottom:20px}
+.big{font:700 clamp(22px,3vw,30px)/1.25 var(--fh);margin:4px 0 8px;overflow-wrap:anywhere}
+.steps .step{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:10px;margin:8px 0;background:var(--bg)}
+.step.done{background:var(--success-soft)}.step.done .tn{text-decoration:line-through;color:var(--text-muted)}.step .tn{flex:1;font-weight:400}
+.clock{font:700 26px var(--fh);font-variant-numeric:tabular-nums;min-width:82px}
+.row select{width:auto}
+body.calm .layout{grid-template-columns:1fr;max-width:720px;margin:0 auto}
+body.calm .two{grid-template-columns:1fr}
+body.calm .two>section:nth-child(2),body.calm .stack>section:last-child,body.calm aside{display:none}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="owl" viewBox="0 0 60 60"><ellipse cx="30" cy="34" rx="20" ry="18" fill="var(--accent)"/><circle cx="30" cy="16" r="13" fill="var(--accent)"/><path d="M30 16L42 20L30 24Z" fill="var(--warning)"/><circle cx="24" cy="14" r="3" fill="#fff"/><circle cx="24" cy="14" r="1.4" fill="#222"/><path d="M14 30Q6 26 8 38Q16 40 20 32Z" fill="var(--warning)"/><path d="M18 46Q30 54 42 46" stroke="var(--warning)" stroke-width="3" fill="none" stroke-linecap="round"/></symbol></svg>
 
-<header class="top">
-  <div class="topbar">
-    <div class="brand">Adaptive<span>Space</span></div>
-    <div class="zen-toggle">
-      <label for="zenSwitch">Warm Zen Mode</label>
-      <button id="zenSwitch" class="switch" role="switch" aria-pressed="false" aria-label="Toggle Warm Zen Mode"></button>
+<header><div class="bar"><div class="brand">Adaptive<span>Space</span></div>
+<div class="tg"><details class="cf"><summary>⚙ Comfort</summary><div class="cfp">
+<button class="btn g" id="cFont">Font</button>
+<span>Text size <button class="btn g" id="cMinus" aria-label="Smaller text">A−</button> <button class="btn g" id="cPlus" aria-label="Bigger text">A+</button></span>
+<label><input type="checkbox" id="cSpace"> Roomy spacing</label>
+<label><input type="checkbox" id="cCalm"> Calm view: one thing at a time</label>
+<label style="display:block">AI (optional)<input type="password" id="aiKey" placeholder="Anthropic API key" autocomplete="off"></label>
+<p class="note" style="font-size:12px;margin:0">Powers AI step breakdowns &amp; the Simplify tab. Stored only in your browser, sent only to Anthropic.</p></div></details><label for="zen">Dark Mode</label><button id="zen" class="switch" role="switch" aria-pressed="false" aria-label="Toggle dark mode"></button></div></div></header>
+
+<main class="wrap">
+  <section class="card stats" aria-label="Progress">
+    <svg class="owl" aria-hidden="true"><use href="#owl"/></svg>
+    <div><div class="lvl" id="lvl">Level 1</div></div>
+    <div class="xpw"><small id="xpTxt">0 / 100 XP</small><div class="track"><div class="fill" id="fill"></div></div></div>
+    <div class="streak" id="streak">🔥 0 day streak</div>
+    <div class="badges" id="badges"></div>
+  </section>
+
+  <section class="card next" aria-label="Next step">
+  <div id="nextBody"></div>
+  <div class="row"><button class="btn" id="doneBtn">✓ Done</button><button class="btn g" id="readBtn">🔊 Read to me</button><button class="btn g" id="skipBtn">↻ Not this one</button></div>
+  <div class="row"><select id="dur" aria-label="Focus length"><option value="5">5 min</option><option value="10" selected>10 min</option><option value="15">15 min</option><option value="25">25 min</option></select><button class="btn" id="tBtn">▶ Start focus timer</button><span class="clock" id="clock">10:00</span></div>
+</section>
+<div class="layout">
+    <div class="stack">
+      <section class="card">
+        <h2>Task dump</h2>
+        <div class="qa">
+          <input id="tTitle" placeholder="Dump it here — assignment, exam, reading… then press Enter" aria-label="Task title">
+          <button class="btn" id="addBtn">Add</button>
+        </div>
+        <datalist id="subs"></datalist>
+      </section>
+
+      <div class="two">
+        <section class="card"><h2>Today</h2><ul id="today"></ul></section>
+        <section class="card"><h2>Upcoming deadlines</h2><ul id="upcoming"></ul></section>
+      </div>
+
+      <section class="card">
+        <h2>All tasks</h2>
+        <div class="flt">
+          <label><input type="checkbox" id="hideDone" style="width:auto"> Hide done</label>
+        </div>
+        <ul id="all"></ul>
+      </section>
     </div>
+
+    <aside class="card" id="converter" style="position:sticky;top:76px">
+      <h2>Study material converter</h2>
+      <textarea id="cvText" placeholder="Paste your notes here, or upload a file below…" aria-label="Study material"></textarea>
+      <div class="row"><input type="file" id="file" accept=".txt,.md,.pdf" aria-label="Upload notes or PDF"></div>
+      <div class="tabs" style="margin-top:12px" role="tablist">
+        <button class="tab" role="tab" data-m="map" aria-selected="true">🗺 Diagram</button>
+        <button class="tab" role="tab" data-m="listen" aria-selected="false">🔊 Listen &amp; Read</button>
+        <button class="tab" role="tab" data-m="simplify" aria-selected="false">✨ Simplify</button>
+      </div>
+      <button class="btn" id="convert" style="width:100%">Convert</button>
+      <div id="cvOut" aria-live="polite"></div>
+      <div id="tts">
+        <button class="btn g" id="speak">🔊 Listen</button>
+        <label>Read <select id="src"><option value="sum">summary</option><option value="full">full notes</option></select></label>
+        <label>Speed <input type="range" id="rate" min="0.6" max="1.6" step="0.1" value="1"> <span id="rateTxt">1.0×</span></label>
+      </div>
+    </aside>
   </div>
-</header>
-
-<main>
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <div class="eyebrow">The Unheard Student — PS-01</div>
-        <h1>Equal content isn't <em>equal access.</em></h1>
-        <p class="lede">AdaptiveSpace is a low-friction academic workspace that turns dense, intimidating assignments into a clear objective, a time-boxed checklist, and plain-English explanations — built for ADHD, dyslexia, and executive dysfunction.</p>
-        <div class="cta-row">
-          <a href="#demo" class="btn btn-primary">Try the De-Jargon Engine</a>
-          <a href="#simplifier" class="btn btn-ghost">One-Line Simplifier</a>
-        </div>
-      </div>
-      <div class="mock-canvas" aria-hidden="true">
-        <div class="mc-head"><span></span><span></span><span></span></div>
-        <div class="mc-block done">Read assignment overview <span class="mc-time">5m</span></div>
-        <div class="mc-block">Set up starter boilerplate <span class="mc-time">Est. 20m</span></div>
-        <div class="mc-block">Implement stack push/pop logic <span class="mc-time">Est. 35m</span></div>
-        <div class="mc-block">Write 3 test cases <span class="mc-time">Est. 15m</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="barriers" id="barriers">
-    <div class="wrap b-grid">
-      <div class="b-card">
-        <div class="b-tag">ADHD</div>
-        <h3>Blank-canvas paralysis</h3>
-        <p>An empty page with no structure forces a planning decision before any work starts. AdaptiveSpace removes that decision entirely.</p>
-      </div>
-      <div class="b-card">
-        <div class="b-tag">Dyslexia</div>
-        <h3>Jargon decoding fatigue</h3>
-        <p>Dense technical language demands re-reading and slows comprehension. We swap unexplained jargon for plain-English analogies inline.</p>
-      </div>
-      <div class="b-card">
-        <div class="b-tag">Executive Dysfunction</div>
-        <h3>No sense of scale or time</h3>
-        <p>Without a time estimate, tasks feel infinite. Every step ships with a time-box, so starting feels possible.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="demo">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>The De-Jargon &amp; Chunk Engine</h2>
-        <p>Paste a dense assignment prompt on the left. AdaptiveSpace returns a single clear objective, a time-boxed checklist, and analogies for detected jargon — try it below.</p>
-      </div>
-      <div class="demo-panel">
-        <div class="demo-grid">
-          <div class="demo-col">
-            <div class="demo-label">Raw assignment text</div>
-            <textarea id="rawInput" aria-label="Raw assignment text"></textarea>
-            <div class="demo-actions">
-              <button id="transformBtn" class="btn btn-primary">Transform</button>
-              <button id="micBtnRaw" type="button" class="btn btn-ghost mic-btn" aria-label="Add text by speaking">🎤 Speak</button>
-              <span class="hint">Runs instantly, right in your browser.</span>
-            </div>
-          </div>
-          <div class="demo-col">
-            <div class="demo-label" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-              <span>Simplified output</span>
-              <button id="listenBtn" class="btn btn-ghost" style="padding:7px 14px; font-size:13px; display:none;" aria-label="Listen to the simplified output">🔊 Listen</button>
-            </div>
-            <div class="game-bar" id="gameBar" style="display:none;">
-              <span class="streak-pill" id="streakPill">🔥 0</span>
-              <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-              <span class="xp-pill" id="xpPill">0 XP</span>
-            </div>
-            <div id="outArea">
-              <p class="placeholder-note">Click "Transform" to see the objective, checklist, and jargon analogies appear here — then hit Listen to hear it read aloud, or tap a step to check it off.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="simplifier">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Instruction Simplifier</h2>
-        <p>Got one confusing line — a rubric note, an email, a professor's comment? Paste it in and get back exactly one plain sentence telling you what to actually do.</p>
-      </div>
-      <div class="simplifier-panel">
-        <textarea id="simpInput" class="simp-input" aria-label="Instruction to simplify">Students are required to submit a comprehensive literature review (minimum 2,500 words) that critically synthesizes at least 8 peer-reviewed sources published within the last five years, formatted per APA 7th edition guidelines, and must demonstrate a clear theoretical framework underpinning the analysis.</textarea>
-        <div class="simp-actions">
-          <button id="simplifyBtn" class="btn btn-primary">Simplify to one line</button>
-          <button id="micBtnSimp" type="button" class="btn btn-ghost mic-btn" aria-label="Add text by speaking">🎤 Speak</button>
-          <span class="hint">Strips jargon, asides, and requirements clutter down to the core task.</span>
-        </div>
-        <div class="simp-out" id="simpOut">
-          <div class="simp-label">In one line</div>
-          <div class="simp-line" id="simpLine"></div>
-          <div class="simp-tools">
-            <button id="simpListenBtn" class="btn btn-ghost">🔊 Listen</button>
-            <button id="simpCopyBtn" class="btn btn-ghost">Copy</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Diagram Deserializer</h2>
-        <p>A photographed chalkboard diagram becomes a sequential, screen-reader-friendly outline — no peer translation required.</p>
-      </div>
-      <div class="deserializer">
-        <div class="photo-mock">
-          <svg viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mock chalkboard diagram showing three connected boxes labeled Input, Process, and Output">
-            <rect x="10" y="10" width="220" height="160" rx="8" fill="none" stroke="var(--ink-soft)" stroke-width="1.5"/>
-            <rect x="30" y="35" width="60" height="34" rx="4" fill="none" stroke="var(--accent)" stroke-width="2"/>
-            <text x="60" y="56" font-size="11" text-anchor="middle" fill="var(--ink)" font-family="Atkinson Hyperlegible">Input</text>
-            <rect x="120" y="35" width="70" height="34" rx="4" fill="none" stroke="var(--accent)" stroke-width="2"/>
-            <text x="155" y="56" font-size="11" text-anchor="middle" fill="var(--ink)" font-family="Atkinson Hyperlegible">Process</text>
-            <rect x="75" y="110" width="70" height="34" rx="4" fill="none" stroke="var(--accent)" stroke-width="2"/>
-            <text x="110" y="131" font-size="11" text-anchor="middle" fill="var(--ink)" font-family="Atkinson Hyperlegible">Output</text>
-            <line x1="90" y1="52" x2="120" y2="52" stroke="var(--terra)" stroke-width="2"/>
-            <line x1="155" y1="69" x2="120" y2="110" stroke="var(--terra)" stroke-width="2"/>
-          </svg>
-        </div>
-        <div class="outline-mock">
-          <ol>
-            <li><strong>Step 1</strong>Input stage — data enters the system.</li>
-            <li><strong>Step 2</strong>Process stage — the system transforms the input.</li>
-            <li><strong>Step 3</strong>Output stage — the transformed result is produced.</li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  </section>
 </main>
 
-<footer>
-  <div class="wrap foot-row">
-    <span>AdaptiveSpace — Track 05, PS-01: The Unheard Student</span>
-    <a href="#demo" class="btn btn-ghost">Back to demo</a>
-  </div>
-</footer>
-
-<div class="mascot-toast" id="mascotToast" role="status" aria-live="polite">
-  <button class="mascot-close" id="mascotClose" aria-label="Dismiss notification">✕</button>
-  <div class="mascot-icon">
-    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <ellipse cx="30" cy="34" rx="20" ry="18" fill="var(--accent)"/>
-      <circle cx="30" cy="16" r="13" fill="var(--accent)"/>
-      <path d="M30 16 L42 20 L30 24 Z" fill="var(--terra)"/>
-      <circle cx="24" cy="14" r="3" fill="var(--bg-panel)"/>
-      <circle cx="24" cy="14" r="1.4" fill="var(--ink)"/>
-      <path d="M14 30 Q6 26 8 38 Q16 40 20 32 Z" fill="var(--terra)"/>
-      <path d="M18 46 Q30 54 42 46" stroke="var(--terra)" stroke-width="3" fill="none" stroke-linecap="round"/>
-    </svg>
-  </div>
-  <div class="mascot-body">
-    <strong id="mascotTitle">Hoot!</strong>
-    <span id="mascotMsg">You have a lesson waiting.</span>
-  </div>
-</div>
+<div class="toast" id="toast" role="status" aria-live="polite"><button id="toastX" aria-label="Dismiss">✕</button><svg class="owl" aria-hidden="true"><use href="#owl"/></svg><div><b id="toastT"></b><span id="toastM"></span></div></div>
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="celT"><div class="cel"><svg class="owl" aria-hidden="true"><use href="#owl"/></svg><h3 id="celT"></h3><p id="celM"></p><button class="btn" id="celX">Keep going</button></div></div>
 
 <script>
-const SAMPLE = "Design and implement a bounded stack-based data structure supporting push, pop, and peek operations with amortized O(1) time complexity. Your implementation must handle edge cases including stack overflow and underflow conditions gracefully, raising appropriate exceptions. Additionally, write a minimum of three unit tests validating boundary conditions, and include Big-O complexity annotations in your docstrings.";
-document.getElementById('rawInput').value = SAMPLE;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+const today=()=>addDays(0);
 
-const JARGON = {
-  "amortized": "On average, over many operations — even if one operation is occasionally slower.",
-  "o(1)": "A fancy way of saying \"takes the same amount of time no matter how big the input is.\"",
-  "stack overflow": "When you try to add more items than the structure has room for.",
-  "underflow": "When you try to remove an item, but the structure is already empty.",
-  "big-o": "A way of describing roughly how slow or fast your code gets as the input grows.",
-  "boundary conditions": "The tricky edge cases, like an empty list or the very first/last item.",
-  "docstrings": "Short comments inside your code explaining what a function does."
-};
+/* ---------- state ---------- */
+let S={tasks:[],xp:0,streak:0,last:'',total:0,badges:[],nid:1,seeded:0};
+try{const r=localStorage.getItem('adsp');if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem('adsp',JSON.stringify(S))}catch(e){}};
+if(!S.seeded){S.seeded=1;S.nid=5;S.tasks=[
+ {id:1,title:'Implement stack push/pop logic',sub:'Data Structures',due:today(),pri:'high',done:false},
+ {id:2,title:'Read chapter 4 — Cell biology',sub:'Biology',due:today(),pri:'low',done:false},
+ {id:3,title:'Lab report draft',sub:'Chemistry',due:addDays(2),pri:'medium',done:false},
+ {id:4,title:'Midterm exam',sub:'Data Structures',due:addDays(6),pri:'high',done:false}]}
+if(S.last&&S.last!==today()&&S.last!==addDays(-1))S.streak=0;
 
-function splitSentences(text){
-  return text.replace(/\s+/g,' ').trim().split(/(?<=[.!?])\s+/).filter(Boolean);
+/* ---------- gamification ---------- */
+const lvlOf=()=>1+Math.floor(S.xp/100);
+const BADGES=[['first','First step',()=>S.total>=1],['five','5 tasks done',()=>S.total>=5],['l3','Level 3',()=>lvlOf()>=3],['s3','3-day streak',()=>S.streak>=3]];
+let tt;
+function toast(t,m){$('toastT').textContent=t;$('toastM').textContent=m;$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>$('toast').classList.remove('show'),4200)}
+function celebrate(t,m){$('celT').textContent=t;$('celM').textContent=m;$('ov').classList.add('show');$('celX').focus()}
+function award(n){const before=lvlOf();S.xp=Math.max(0,S.xp+n);const after=lvlOf();
+ if(after>before)celebrate('Level '+after+'! 🎉','You reached level '+after+'. Keep the streak alive.');
+ BADGES.forEach(([id,name,ok])=>{if(!S.badges.includes(id)&&ok()){S.badges.push(id);toast('Badge unlocked!',name)}})}
+function touchStreak(){const t=today();if(S.last!==t){S.streak=S.last===addDays(-1)?S.streak+1:1;S.last=t}}
+
+/* ---------- AI (optional, bring-your-own-key) ---------- */
+const AIK=()=>{try{return localStorage.getItem('adsp_ai_key')||''}catch(e){return ''}};
+async function askAI(prompt,max){
+ const key=AIK();if(!key)return null;
+ try{
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:max||600,messages:[{role:'user',content:prompt}]})});
+  if(!r.ok)return null;
+  const d=await r.json();
+  return (d.content||[]).map(c=>c.text||'').join('').trim()||null;
+ }catch(e){return null}
+}
+async function aiSteps(t){
+ const res=await askAI(`Break the task "${t.title}"${t.sub&&t.sub!=='General'?' (subject: '+t.sub+')':''} into exactly 4 tiny, concrete steps for someone with ADHD and executive dysfunction. Rules: each step under 15 minutes, a specific physical action (never vague verbs like "work on" or "review"), first step near-zero-effort. Reply with ONLY a JSON array, nothing else, like [{"t":"step text","m":8}].`,400);
+ if(!res)return null;
+ try{const m=res.match(/\[[\s\S]*\]/);if(!m)return null;
+  const arr=JSON.parse(m[0]);if(!Array.isArray(arr)||!arr.length)return null;
+  return arr.slice(0,5).map(s=>({t:String(s.t||'').slice(0,140),m:Math.max(1,Math.min(60,+s.m||10)),done:false}))
+ }catch(e){return null}
 }
 
-function estimate(sentence){
-  const words = sentence.split(' ').length;
-  return Math.max(10, Math.min(45, Math.round(words * 1.3 / 5) * 5));
+/* ---------- tasks ---------- */
+const PR={high:0,medium:1,low:2},XPV={high:30,medium:20,low:10};
+function dl(d){if(!d)return['No date',''];const n=Math.round((new Date(d+'T00:00')-new Date(today()+'T00:00'))/864e5);
+ return n<0?['Waiting '+(-n)+'d','od']:n===0?['Today','']:n===1?['Tomorrow','']:[new Date(d+'T00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}),'']}
+const row=t=>{const[l,c]=dl(t.due);return `<li class="task${t.done?' done':''}" data-id="${t.id}"><button class="ck" data-a="t" aria-label="Mark done">✓</button><div class="tt"><div class="tn">${esc(t.title)}</div><div class="meta"><span class="chip">${esc(t.sub)}</span><span class="chip ${t.done?'':c}">${l}</span><span class="chip p-${t.pri}">${t.pri}</span>${t.steps?`<span class="chip">${t.steps.filter(x=>x.done).length}/${t.steps.length} steps</span>`:''}</div></div><button class="ib" data-a="b" aria-label="Break into tiny steps">✂</button><button class="ib" data-a="e" aria-label="Edit task">✎</button><button class="ib" data-a="d" aria-label="Delete task">✕</button></li>`};
+const list=(a,msg)=>a.length?a.map(row).join(''):`<li class="empty">${msg}</li>`;
+function render(){
+ const T=today(),open=S.tasks.filter(t=>!t.done);
+ $('today').innerHTML=list(open.filter(t=>t.due&&t.due<=T).sort((a,b)=>PR[a.pri]-PR[b.pri]),'Nothing due today 🎉');
+ $('upcoming').innerHTML=list(open.filter(t=>t.due>T).sort((a,b)=>a.due<b.due?-1:1).slice(0,4),'No upcoming deadlines.');
+ const subs=[...new Set(S.tasks.map(t=>t.sub))].sort();
+ $('subs').innerHTML=subs.map(s=>`<option value="${esc(s)}">`).join('');
+ const hd=$('hideDone').checked;
+ const cmp=(a,b)=>(a.due||'9')<(b.due||'9')?-1:(a.due||'9')>(b.due||'9')?1:0;
+ $('all').innerHTML=list(S.tasks.filter(t=>!(hd&&t.done)).sort((a,b)=>(a.done-b.done)||cmp(a,b)),'No tasks match.');
+ renderNext();const l=lvlOf();$('lvl').textContent='Level '+l;$('xpTxt').textContent=(S.xp%100)+' / 100 XP';$('fill').style.width=(S.xp%100)+'%';
+ $('streak').textContent=S.streak?'🔥 '+S.streak+' day streak':'🌱 Fresh start today';
+ $('badges').innerHTML=BADGES.map(([id,n])=>`<span class="bd${S.badges.includes(id)?' on':''}">${S.badges.includes(id)?'★ ':''}${n}</span>`).join('');
 }
-
-function transform(){
-  const raw = document.getElementById('rawInput').value.trim();
-  const out = document.getElementById('outArea');
-  if(!raw){ out.innerHTML = '<p class="placeholder-note">Paste some assignment text first.</p>'; return; }
-
-  const sentences = splitSentences(raw);
-  const objective = "Build a working stack structure with push, pop, and peek — then prove it works with tests.";
-
-  let checklistHtml = '<ul class="checklist" id="stepList">';
-  checklistHtml += `<li class="step-item" data-index="warmup"><span class="step-check" aria-hidden="true">✓</span><span class="step-text">Warm-up: just read through it once — nothing to write yet</span><span class="est">Est. 3m</span></li>`;
-  sentences.slice(0,3).forEach((s,i)=>{
-    const short = s.length > 70 ? s.slice(0,67).trim() + '…' : s;
-    checklistHtml += `<li class="step-item" data-index="${i}"><span class="step-check" aria-hidden="true">✓</span><span class="step-text">${short}</span><span class="est">Est. ${estimate(s)}m</span></li>`;
-  });
-  checklistHtml += '</ul>';
-
-  const lower = raw.toLowerCase();
-  let found = [];
-  Object.keys(JARGON).forEach(term=>{
-    if(lower.includes(term)) found.push(term);
-  });
-  let jargonHtml = '';
-  if(found.length){
-    jargonHtml = '<ul class="jargon-list">' + found.map(t=>
-      `<li><span class="jargon-term">${t}</span><span class="jargon-def">${JARGON[t]}</span></li>`
-    ).join('') + '</ul>';
-  } else {
-    jargonHtml = '<p class="placeholder-note">No flagged jargon terms detected in this text.</p>';
+let editing=null;
+function submitTask(){const title=$('tTitle').value.trim();if(!title){$('tTitle').focus();return}
+ const o={title,sub:'General',due:today(),pri:'medium'};
+ if(editing){Object.assign(S.tasks.find(t=>t.id===editing),{title});editing=null;$('addBtn').textContent='Add'}
+ else S.tasks.push({id:S.nid++,done:false,...o});
+ $('tTitle').value='';$('tTitle').focus();save();render()}
+$('addBtn').onclick=submitTask;
+$('tTitle').onkeydown=e=>{if(e.key==='Enter')submitTask();if(e.key==='Escape'&&editing){editing=null;$('tTitle').value='';$('addBtn').textContent='Add'}};
+function toggleT(t){t.done=!t.done;
+ if(t.done){S.total++;touchStreak();award(XPV[t.pri]);if(!$('ov').classList.contains('show'))toast('Nice!','+'+XPV[t.pri]+' XP — task complete.')}
+ else{S.total=Math.max(0,S.total-1);award(-XPV[t.pri])}}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;
+ const id=+b.closest('.task').dataset.id,t=S.tasks.find(x=>x.id===id),a=b.dataset.a;
+ if(a==='b'){
+  if(!t.steps){
+   if(AIK()){const old=b.textContent;b.textContent='…';b.disabled=true;t.steps=(await aiSteps(t))||mk(t);b.textContent=old;b.disabled=false}
+   else t.steps=mk(t);
   }
+ }
+ else if(a==='d'){S.tasks=S.tasks.filter(x=>x.id!==id)}
+ else if(a==='e'){editing=id;$('tTitle').value=t.title;$('addBtn').textContent='Save';$('tTitle').focus();window.scrollTo({top:0,behavior:'smooth'});return}
+ else toggleT(t)
+ save();render()});
+$('hideDone').onchange=render;
 
-  out.innerHTML = `
-    <div class="out-objective"><strong>Objective</strong>${objective}</div>
-    <div class="demo-label">Time-boxed checklist</div>
-    ${checklistHtml}
-    <div class="demo-label">Plain-English analogies</div>
-    ${jargonHtml}
-  `;
+/* ---------- study material converter ---------- */
+const STOP=new Set('the and that with this from have will they their there which what when where would could should about into than then them these those been being were also more most some such only other over very your you are for not but can has had was its our out any all one two how why who while between through using used use may must each both'.split(' '));
+const sents=t=>t.split(/\n+|(?<=[.!?])\s+/).map(s=>s.replace(/\s+/g,' ').trim()).filter(s=>s.length>3);
+const wordsOf=t=>t.toLowerCase().match(/[a-z][a-z'-]{3,}/g)||[];
+function freq(t){const f={};wordsOf(t).forEach(w=>{if(!STOP.has(w))f[w]=(f[w]||0)+1});return f}
+function summarize(ss,F){const sc=ss.map((s,i)=>{const w=wordsOf(s);return[i,w.reduce((a,x)=>a+(F[x]||0),0)/Math.sqrt(w.length+1)]});
+ return sc.sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>x[0]).sort((a,b)=>a-b).map(i=>{const w=ss[i].split(' ');return w.length>18?w.slice(0,18).join(' ')+'…':ss[i]})}
+function mindmap(ss,kw){
+ if(kw.length<2)return '<p class="note">Not enough distinct ideas to map yet — add more text.</p>';
+ const cx=290,cy=190,n=kw.length,used=new Set();let L='',N='';
+ kw.forEach((k,i)=>{const a=i/n*2*Math.PI-Math.PI/2,bx=cx+125*Math.cos(a),by=cy+85*Math.sin(a),w=k.length*7.5+18;
+  L+=`<line x1="${cx}" y1="${cy}" x2="${bx}" y2="${by}" stroke="var(--accent)" stroke-width="2"/>`;
+  [-1,1].forEach(o=>{const si=ss.findIndex((s,j)=>!used.has(j)&&s.toLowerCase().includes(k));if(si<0)return;used.add(si);
+   const ws=ss[si].split(' '),ix=Math.max(0,ws.findIndex(x=>x.toLowerCase().includes(k)));
+   const lab=ws.slice(ix,ix+4).join(' ').replace(/[.,;:]+$/,'').slice(0,20),la=a+o*.32,c=Math.cos(la),lx=cx+180*c,ly=cy+140*Math.sin(la);
+   L+=`<line x1="${bx}" y1="${by}" x2="${lx}" y2="${ly}" stroke="var(--warning)" stroke-width="1.2"/>`;
+   N+=`<text x="${lx+(c>.25?5:c<-.25?-5:0)}" y="${ly+4}" font-size="11" fill="var(--text)" text-anchor="${c>.25?'start':c<-.25?'end':'middle'}">${esc(lab)}</text>`});
+  N+=`<rect x="${bx-w/2}" y="${by-14}" width="${w}" height="28" rx="9" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/><text x="${bx}" y="${by+4}" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--text)">${esc(k)}</text>`});
+ const ctr=ss[0].split(' ').slice(0,2).join(' ').replace(/[.,;:]+$/,'').slice(0,16);
+ return `<svg viewBox="0 0 580 380" role="img" aria-label="Mind map of your notes">${L}<ellipse cx="${cx}" cy="${cy}" rx="56" ry="26" fill="var(--accent)"/><text x="${cx}" y="${cy+4}" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--on-accent)">${esc(ctr)}</text>${N}</svg>`}
 
-  const steps = sentences.slice(0,4).map((s,i)=>`Step ${i+1}: ${s}`).join('. ');
-  const analogies = found.length
-    ? 'Jargon explained. ' + found.map(t=>`${t} means: ${JARGON[t]}`).join('. ')
-    : '';
-  window.__speechText = `Objective: ${objective}. Here is your checklist. ${steps}. ${analogies}`;
+let mode='map',lastConv='',SUM=[],FULL='';
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));if($('cvOut').innerHTML)convert(true)});
+async function convert(quiet){
+ const txt=$('cvText').value.trim(),out=$('cvOut');speechSynthesis&&speechSynthesis.cancel();setSpeak(false);
+ if(txt.length<40){out.innerHTML='<p class="note">Paste at least a few sentences of notes first.</p>';$('tts').style.display='none';return}
+ const ss=sents(txt),F=freq(txt),kw=Object.entries(F).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]);
+ FULL=ss.join('. ');SUM=summarize(ss,F);
+ if(mode==='simplify'){
+  if(AIK()){
+   out.innerHTML='<p class="note">Simplifying…</p>';
+   const res=await askAI('Rewrite these study notes in very plain, dyslexia-friendly language: short sentences (under 12 words), one idea per line, define any technical term right after it in brackets. Reply with ONLY 5 to 8 short lines, no intro or outro.\n\nNotes:\n'+txt.slice(0,3000),700);
+   if(res){const lines=res.split(/\n+/).map(s=>s.replace(/^[-•*\d.)\s]+/,'').trim()).filter(Boolean).slice(0,8);
+    SUM=lines.length?lines:SUM;out.innerHTML='<ul class="bul">'+SUM.map(s=>`<li>${esc(s)}</li>`).join('')+'</ul>'}
+   else out.innerHTML='<p class="note">AI simplify failed — check your API key, or try Diagram / Listen &amp; Read instead.</p>'
+  } else out.innerHTML='<p class="note">Add an Anthropic API key in ⚙ Comfort to turn this on. Here\'s a plain summary for now:</p><ul class="bul">'+SUM.map(s=>`<li>${esc(s)}</li>`).join('')+'</ul>';
+ } else out.innerHTML=mode==='map'?mindmap(ss,kw):'<ul class="bul">'+SUM.map(s=>`<li>${esc(s)}</li>`).join('')+'</ul>';
+ $('tts').style.display=mode==='listen'?'flex':'none';
+ if(!quiet&&txt!==lastConv){lastConv=txt;award(10);save();render();toast('Nice studying!','+10 XP for converting notes.')}}
+$('convert').onclick=()=>convert(false);
 
-  const listenBtn = document.getElementById('listenBtn');
-  listenBtn.style.display = 'inline-flex';
-  listenBtn.classList.remove('speaking');
-  listenBtn.textContent = '🔊 Listen';
-  if(window.speechSynthesis) window.speechSynthesis.cancel();
+const PDF='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+async function readPdf(f){
+ if(!window.pdfjsLib){await new Promise((ok,no)=>{const s=document.createElement('script');s.src=PDF+'pdf.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});pdfjsLib.GlobalWorkerOptions.workerSrc=PDF+'pdf.worker.min.js'}
+ const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let o='';
+ for(let i=1;i<=Math.min(d.numPages,30);i++){const c=await(await d.getPage(i)).getTextContent();o+=c.items.map(x=>x.str).join(' ')+'\n'}return o}
+$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;
+ try{$('cvText').value=/\.pdf$/i.test(f.name)?await readPdf(f):await f.text()}
+ catch(err){$('cvOut').innerHTML='<p class="note">Couldn’t read that file — try pasting the text instead.</p>'}};
 
-  totalSteps = Math.min(sentences.length, 3) + 1;
-  completedSteps = 0;
-  xp = 0;
-  document.getElementById('gameBar').style.display = 'flex';
-  updateGameBar();
-  document.getElementById('stepList').addEventListener('click', onStepClick);
+/* text-to-speech with adjustable speed */
+function setSpeak(on){$('speak').classList.toggle('on',on);$('speak').textContent=on?'⏹ Stop':'🔊 Listen'}
+function speak(){if(!('speechSynthesis' in window)){$('speak').textContent='Not supported here';return}
+ const s=speechSynthesis;s.cancel();
+ const u=new SpeechSynthesisUtterance($('src').value==='sum'?SUM.join('. '):FULL);u.rate=+$('rate').value;
+ u.onend=u.onerror=()=>setSpeak(false);s.speak(u);setSpeak(true)}
+$('speak').onclick=()=>{if('speechSynthesis' in window&&speechSynthesis.speaking){speechSynthesis.cancel();setSpeak(false)}else speak()};
+$('rate').oninput=()=>{$('rateTxt').textContent=(+$('rate').value).toFixed(1)+'×';if('speechSynthesis' in window&&speechSynthesis.speaking)speak()};
 
-  showMascot('Hoot!', 'New lesson ready. Tap a step to start your streak.');
-}
+/* ---------- focus mode, tiny steps, timer ---------- */
+const mk=t=>[['Get set: open what you need, water nearby, phone away',2],['Start ugly: just the first tiny piece of “'+t.title+'”',10],['One more small chunk',15],['Quick check, then celebrate',5]].map(([x,m])=>({t:x,m,done:false}));
+let skip=0,tm=null,left=0,run=false;
+const fmt=n=>String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');
+const cur=()=>S.tasks.find(t=>t.id==$('next').dataset.id);
+function renderNext(){
+ const L=S.tasks.filter(t=>!t.done).sort((a,b)=>((a.due||'9')<(b.due||'9')?-1:(a.due||'9')>(b.due||'9')?1:0)||PR[a.pri]-PR[b.pri]),el=$('nextBody');
+ document.querySelector('.next').style.display='';
+ if(!L.length){el.innerHTML='<h2>Your one next thing</h2><p class="note">All clear. Add something above, or take a real break 🌿</p>';$('next').dataset.id='';document.querySelectorAll('.next .row').forEach(r=>r.style.display='none');return}
+ document.querySelectorAll('.next .row').forEach(r=>r.style.display='flex');
+ const t=L[skip%L.length],[dlab,dc]=dl(t.due);$('next').dataset.id=t.id;
+ const steps=(t.steps||[]).map((x,i)=>`<li class="step${x.done?' done':''}" data-i="${i}"><button class="ck" aria-label="Toggle step">✓</button><span class="tn">${esc(x.t)}</span><span class="chip">${x.m}m</span></li>`).join('');
+ el.innerHTML=`<h2>Your one next thing</h2><div class="big">${esc(t.title)}</div><div class="meta"><span class="chip">${esc(t.sub)}</span><span class="chip ${dc}">${dlab}</span><span class="chip p-${t.pri}">${t.pri}</span></div>${steps?`<ul class="steps">${steps}</ul>`:'<div class="row"><button class="btn g" data-n="b">✂ Break it into tiny steps</button></div>'}`}
+document.querySelector('.next').id='next';
+$('nextBody').onclick=async e=>{const t=cur();if(!t)return;
+ const nb=e.target.closest('[data-n]');
+ if(nb){
+  if(AIK()){const old=nb.textContent;nb.textContent='Thinking…';nb.disabled=true;t.steps=(await aiSteps(t))||mk(t);save();render();return}
+  t.steps=mk(t);
+ }
+ const li=e.target.closest('.step');
+ if(li){const x=t.steps[+li.dataset.i];x.done=!x.done;if(x.done){award(5);if(t.steps.every(y=>y.done)&&!t.done)toggleT(t)}}
+ save();render()};
+$('doneBtn').onclick=()=>{const t=cur();if(t){toggleT(t);save();render()}};
+$('skipBtn').onclick=()=>{skip++;renderNext()};
+$('readBtn').onclick=()=>{const t=cur();if(!t||!('speechSynthesis' in window))return;speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(t.title+'. '+(t.steps||[]).filter(x=>!x.done).map((x,i)=>'Step '+(i+1)+': '+x.t).join('. '));u.rate=.95;speechSynthesis.speak(u)};
+$('tBtn').onclick=()=>{if(run){clearInterval(tm);run=false;$('tBtn').textContent='▶ Resume';return}
+ if(left<=0)left=+$('dur').value*60;run=true;$('tBtn').textContent='⏸ Pause';
+ tm=setInterval(()=>{left--;$('clock').textContent=fmt(Math.max(0,left));if(left<=0){clearInterval(tm);run=false;$('tBtn').textContent='▶ Start focus timer';award(5);save();render();toast('Focus block done! 🎉','+5 XP. Take a 2-minute break, or keep going.')}},1000)};
+$('dur').onchange=()=>{if(!run){left=0;$('clock').textContent=fmt(+$('dur').value*60)}};
 
-document.getElementById('transformBtn').addEventListener('click', transform);
+/* ---------- comfort settings ---------- */
+S.pref=S.pref||{};
+function applyPref(){const p=S.pref,r=document.documentElement.style;
+ document.body.classList.toggle('lexend',!!p.lex);document.body.classList.toggle('calm',!!p.calm);
+ r.setProperty('--fs',p.fs||1);r.setProperty('--lh',p.sp?1.9:1.5);r.setProperty('--ls',p.sp?'.04em':'0');
+ $('cFont').textContent='Font: '+(p.lex?'Lexend':'Atkinson Hyperlegible');$('cSpace').checked=!!p.sp;$('cCalm').checked=!!p.calm;$('aiKey').value=AIK()}
+const pf=()=>{applyPref();save()};
+$('cFont').onclick=()=>{S.pref.lex=!S.pref.lex;pf()};
+$('cPlus').onclick=()=>{S.pref.fs=Math.min(1.4,+((S.pref.fs||1)+.1).toFixed(1));pf()};
+$('cMinus').onclick=()=>{S.pref.fs=Math.max(.9,+((S.pref.fs||1)-.1).toFixed(1));pf()};
+$('cSpace').onchange=e=>{S.pref.sp=e.target.checked;pf()};
+$('cCalm').onchange=e=>{S.pref.calm=e.target.checked;pf()};
+$('aiKey').onchange=e=>{try{localStorage.setItem('adsp_ai_key',e.target.value.trim())}catch(err){}};
 
-let totalSteps = 0, completedSteps = 0, xp = 0, streak = 2;
-
-function updateGameBar(){
-  const pct = totalSteps ? 10 + (completedSteps/totalSteps*90) : 10;
-  document.getElementById('progressFill').style.width = pct+'%';
-  document.getElementById('xpPill').textContent = xp + ' XP';
-  document.getElementById('streakPill').textContent = '🔥 ' + streak;
-}
-
-function onStepClick(e){
-  const li = e.target.closest('.step-item');
-  if(!li) return;
-  const done = li.classList.toggle('step-done');
-  if(done){
-    completedSteps++;
-    xp += 10;
-    if(completedSteps === totalSteps){
-      streak++;
-      updateGameBar();
-      showMascot('Lesson complete!', `Whole checklist done. Streak is now ${streak} 🔥`);
-    } else {
-      updateGameBar();
-      showMascot('Nice!', 'Step complete. Keep going, on a roll.');
-    }
-  } else {
-    completedSteps = Math.max(0, completedSteps-1);
-    xp = Math.max(0, xp-10);
-    updateGameBar();
-  }
-}
-
-let mascotTimer;
-function showMascot(title, msg){
-  const toast = document.getElementById('mascotToast');
-  document.getElementById('mascotTitle').textContent = title;
-  document.getElementById('mascotMsg').textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(mascotTimer);
-  mascotTimer = setTimeout(()=> toast.classList.remove('show'), 4200);
-}
-document.getElementById('mascotClose').addEventListener('click', ()=>{
-  document.getElementById('mascotToast').classList.remove('show');
-  clearTimeout(mascotTimer);
-});
-
-const listenBtn = document.getElementById('listenBtn');
-listenBtn.addEventListener('click', ()=>{
-  if(!('speechSynthesis' in window)){
-    listenBtn.textContent = 'Not supported in this browser';
-    return;
-  }
-  const synth = window.speechSynthesis;
-  if(synth.speaking){
-    synth.cancel();
-    listenBtn.classList.remove('speaking');
-    listenBtn.textContent = '🔊 Listen';
-    return;
-  }
-  try{
-    const utter = new SpeechSynthesisUtterance(window.__speechText || '');
-    utter.rate = 0.95;
-    utter.onend = ()=>{ listenBtn.classList.remove('speaking'); listenBtn.textContent = '🔊 Listen'; };
-    utter.onerror = ()=>{ listenBtn.classList.remove('speaking'); listenBtn.textContent = '🔊 Listen'; };
-    synth.speak(utter);
-    listenBtn.classList.add('speaking');
-    listenBtn.textContent = '⏸ Stop';
-  }catch(e){
-    listenBtn.textContent = 'Playback unavailable';
-  }
-});
-
-setTimeout(()=> showMascot('Hoot hoot!', 'You have a lesson waiting — scroll down to try it.'), 1200);
-
-const ACTION_VERBS = ['write','implement','design','create','build','submit','complete','analyze','calculate','explain','describe','develop','construct','prepare','summarize','answer','solve','draft','produce','demonstrate','synthesize'];
-
-function simplifyOneLiner(text){
-  const sentences = splitSentences(text);
-  if(!sentences.length) return '';
-  let best = sentences[0];
-  for(const s of sentences){
-    const low = s.toLowerCase();
-    if(ACTION_VERBS.some(v=>low.includes(v))){ best = s; break; }
-  }
-  best = best.replace(/\([^)]*\)/g,'');
-  best = best.split(/,?\s*(?:including|such as|which|that|with a minimum|providing|ensuring|formatted per|underpinning)/i)[0];
-  best = best.replace(/\s+/g,' ').trim();
-  const words = best.split(' ');
-  if(words.length > 16) best = words.slice(0,16).join(' ') + '…';
-  best = best.charAt(0).toUpperCase() + best.slice(1);
-  if(!/[.!?…]$/.test(best)) best += '.';
-  return best;
-}
-
-document.getElementById('simplifyBtn').addEventListener('click', ()=>{
-  const raw = document.getElementById('simpInput').value.trim();
-  const outBox = document.getElementById('simpOut');
-  const lineEl = document.getElementById('simpLine');
-  if(!raw){ lineEl.textContent = 'Paste an instruction first.'; outBox.classList.add('show'); return; }
-  lineEl.textContent = simplifyOneLiner(raw);
-  outBox.classList.add('show');
-  showMascot('Simplified!', 'One clear sentence, no jargon.');
-});
-
-document.getElementById('simpListenBtn').addEventListener('click', ()=>{
-  if(!('speechSynthesis' in window)) return;
-  const synth = window.speechSynthesis;
-  const text = document.getElementById('simpLine').textContent;
-  if(!text) return;
-  if(synth.speaking){ synth.cancel(); return; }
-  synth.speak(new SpeechSynthesisUtterance(text));
-});
-
-document.getElementById('simpCopyBtn').addEventListener('click', async ()=>{
-  const text = document.getElementById('simpLine').textContent;
-  const btn = document.getElementById('simpCopyBtn');
-  try{
-    await navigator.clipboard.writeText(text);
-    btn.textContent = 'Copied!';
-    setTimeout(()=> btn.textContent = 'Copy', 1500);
-  }catch(e){ btn.textContent = 'Select & copy manually'; }
-});
-
-function setupMic(btnId, textareaId){
-  const btn = document.getElementById(btnId);
-  const ta = document.getElementById(textareaId);
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ btn.textContent = '🎤 Voice not supported here'; btn.disabled = true; return; }
-  const recog = new SR();
-  recog.lang = 'en-US';
-  recog.interimResults = false;
-  recog.continuous = false;
-  let listening = false;
-
-  btn.addEventListener('click', ()=>{
-    if(listening){ recog.stop(); return; }
-    try{ recog.start(); }catch(e){}
-  });
-  recog.onstart = ()=>{ listening = true; btn.classList.add('listening'); btn.textContent = '🎤 Listening…'; };
-  recog.onend = ()=>{ listening = false; btn.classList.remove('listening'); btn.textContent = '🎤 Speak'; };
-  recog.onerror = ()=>{ listening = false; btn.classList.remove('listening'); btn.textContent = '🎤 Mic unavailable — try again'; setTimeout(()=> btn.textContent = '🎤 Speak', 2200); };
-  recog.onresult = (e)=>{
-    const transcript = Array.from(e.results).map(r=>r[0].transcript).join(' ');
-    ta.value = (ta.value.trim() ? ta.value.trim() + ' ' : '') + transcript;
-  };
-}
-setupMic('micBtnRaw', 'rawInput');
-setupMic('micBtnSimp', 'simpInput');
-
-const zenBtn = document.getElementById('zenSwitch');
-zenBtn.addEventListener('click', ()=>{
-  const pressed = zenBtn.getAttribute('aria-pressed') === 'true';
-  zenBtn.setAttribute('aria-pressed', String(!pressed));
-  document.body.classList.toggle('zen', !pressed);
-});
+/* ---------- ui chrome ---------- */
+$('toastX').onclick=()=>$('toast').classList.remove('show');
+$('celX').onclick=()=>$('ov').classList.remove('show');
+$('ov').onclick=e=>{if(e.target.id==='ov')$('ov').classList.remove('show')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('ov').classList.remove('show')});
+$('zen').onclick=()=>{const p=$('zen').getAttribute('aria-pressed')==='true';$('zen').setAttribute('aria-pressed',String(!p));document.documentElement.setAttribute('data-theme',p?'light':'dark')};
+if(matchMedia('(prefers-color-scheme:dark)').matches){$('zen').setAttribute('aria-pressed','true');document.documentElement.setAttribute('data-theme','dark')}
+applyPref();render();
+setTimeout(()=>{const n=S.tasks.filter(t=>!t.done&&t.due&&t.due<=today()).length;toast('Hoot hoot!',n?`You have ${n} task${n>1?'s':''} due today.`:'Nothing due today — nice.')},1200);
 </script>
 </body>
 </html>
