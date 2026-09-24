@@ -6,7 +6,7 @@
 ---
 
 ## 🚀 Live Demo
-🔗 **[(https://ytsug.github.io/adaptivespace/)]**
+🔗 https://ytsug.github.io/adaptivespace/
 
 ---
 
