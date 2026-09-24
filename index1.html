@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AdaptiveSpace — Equal Access, Not Just Equal Content</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF3E7; --bg-panel:#FFFFFF; --bg-deep:#F3E5D0;
+  --ink:#2B2420; --ink-soft:#6B5F52;
+  --accent:#3F6357; --accent-soft:#DCE8E3;
+  --terra:#C1693C; --terra-soft:#F2DCCB;
+  --line:#E4D3B8;
+  --font-head:'Lexend',sans-serif; --font-body:'Atkinson Hyperlegible',sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#20241F; --bg-panel:#2A2E27; --bg-deep:#171B15;
+    --ink:#EFEAE0; --ink-soft:#B7AF9F;
+    --accent:#8FBBAA; --accent-soft:#33443C;
+    --terra:#E3A279; --terra-soft:#3B2C22;
+    --line:#3B3B32;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#20241F; --bg-panel:#2A2E27; --bg-deep:#171B15;
+  --ink:#EFEAE0; --ink-soft:#B7AF9F;
+  --accent:#8FBBAA; --accent-soft:#33443C;
+  --terra:#E3A279; --terra-soft:#3B2C22;
+  --line:#3B3B32;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body);
+  font-size:17px; line-height:1.6; transition:background .3s ease,color .3s ease;
+}
+body.zen{ --bg:#F4E8D3; --bg-panel:#FBF2E2; --ink:#3A2E20; --ink-soft:#7A6A52; --line:#E6D3AE; }
+img{max-width:100%;}
+.wrap{max-width:1040px; margin:0 auto; padding:0 24px;}
+header.top{position:sticky; top:0; z-index:20; backdrop-filter:blur(6px); background:color-mix(in srgb, var(--bg) 88%, transparent); border-bottom:1px solid var(--line);}
+.topbar{display:flex; align-items:center; justify-content:space-between; padding:16px 24px; max-width:1040px; margin:0 auto;}
+.brand{font-family:var(--font-head); font-weight:600; font-size:19px; letter-spacing:.2px;}
+.brand span{color:var(--accent);}
+.zen-toggle{display:flex; align-items:center; gap:10px; font-size:14px; color:var(--ink-soft);}
+.switch{position:relative; width:46px; height:26px; background:var(--line); border-radius:20px; border:none; cursor:pointer; padding:0;}
+.switch::after{content:"";position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:var(--bg-panel); box-shadow:0 1px 2px rgba(0,0,0,.2); transition:left .2s ease;}
+.switch[aria-pressed="true"]{background:var(--accent);}
+.switch[aria-pressed="true"]::after{left:23px;}
+.switch:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+section{padding:64px 0;}
+.hero{padding:72px 0 48px;}
+.hero-grid{display:grid; grid-template-columns:1.1fr 1fr; gap:48px; align-items:center;}
+@media (max-width:820px){.hero-grid{grid-template-columns:1fr;}}
+.eyebrow{font-family:var(--font-head); font-size:14px; color:var(--terra); font-weight:600; margin-bottom:14px;}
+h1{font-family:var(--font-head); font-size:clamp(34px,4.6vw,52px); line-height:1.12; font-weight:700; margin:0 0 20px; max-width:14ch;}
+h1 em{font-style:normal; color:var(--accent);}
+.lede{font-size:19px; color:var(--ink-soft); max-width:46ch; margin:0 0 28px;}
+.cta-row{display:flex; gap:14px; flex-wrap:wrap;}
+.btn{font-family:var(--font-head); font-weight:600; font-size:15px; padding:13px 22px; border-radius:10px; border:1px solid transparent; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px;}
+.btn-primary{background:var(--accent); color:var(--bg-panel);}
+.btn-primary:hover{opacity:.92;}
+.btn-ghost{background:transparent; border-color:var(--line); color:var(--ink);}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+.mock-canvas{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:0 10px 30px rgba(43,36,32,.08);}
+.mock-canvas .mc-head{display:flex; gap:8px; margin-bottom:16px;}
+.mock-canvas .mc-head span{width:10px; height:10px; border-radius:50%; background:var(--line);}
+.mc-block{border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px; font-size:15px;}
+.mc-block.done{background:var(--accent-soft); text-decoration:line-through; color:var(--ink-soft);}
+.mc-block .mc-time{float:right; font-size:12px; color:var(--ink-soft); text-decoration:none;}
+
+.barriers{background:var(--bg-deep); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+.b-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
+@media (max-width:760px){.b-grid{grid-template-columns:1fr;}}
+.b-card h3{font-family:var(--font-head); font-size:18px; margin:0 0 8px;}
+.b-card p{color:var(--ink-soft); margin:0; font-size:15.5px;}
+.b-card .b-tag{display:inline-block; font-size:13px; color:var(--terra); font-weight:700; margin-bottom:10px;}
+
+.section-head{max-width:60ch; margin-bottom:32px;}
+.section-head h2{font-family:var(--font-head); font-size:clamp(26px,3vw,34px); margin:0 0 10px;}
+.section-head p{color:var(--ink-soft); margin:0; font-size:16.5px;}
+
+.demo-panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
+.demo-grid{display:grid; grid-template-columns:1fr 1fr;}
+@media (max-width:760px){.demo-grid{grid-template-columns:1fr;}}
+.demo-col{padding:26px;}
+.demo-col + .demo-col{border-left:1px solid var(--line);}
+@media (max-width:760px){.demo-col + .demo-col{border-left:none; border-top:1px solid var(--line);}}
+.demo-label{font-family:var(--font-head); font-weight:600; font-size:14px; color:var(--ink-soft); margin-bottom:12px;}
+textarea{width:100%; min-height:220px; resize:vertical; border:1px solid var(--line); border-radius:10px; padding:14px; font-family:var(--font-body); font-size:15px; color:var(--ink); background:var(--bg); line-height:1.5;}
+textarea:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+.demo-actions{margin-top:14px; display:flex; gap:12px; align-items:center;}
+.hint{font-size:13px; color:var(--ink-soft);}
+
+.out-objective{background:var(--accent-soft); border-radius:10px; padding:14px 16px; font-size:16px; margin-bottom:18px;}
+.out-objective strong{display:block; font-size:12px; text-transform:none; color:var(--accent); font-family:var(--font-head); margin-bottom:4px;}
+
+.game-bar{display:flex; align-items:center; gap:14px; margin-bottom:16px;}
+.progress-track{flex:1; height:10px; border-radius:6px; background:var(--line); overflow:hidden;}
+.progress-fill{height:100%; width:0%; background:var(--accent); border-radius:6px; transition:width .45s ease;}
+.streak-pill,.xp-pill{font-family:var(--font-head); font-weight:600; font-size:13px; white-space:nowrap; display:flex; align-items:center; gap:4px;}
+.streak-pill{color:var(--terra);}
+.xp-pill{color:var(--accent);}
+
+.checklist{list-style:none; margin:0 0 18px; padding:0;}
+.checklist li{display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:9px; padding:10px 12px; margin-bottom:8px; font-size:15px; cursor:pointer; transition:background .2s ease;}
+.checklist li:hover{border-color:var(--accent);}
+.checklist li.step-done{background:var(--accent-soft);}
+.checklist li.step-done .step-text{text-decoration:line-through; color:var(--ink-soft);}
+.checklist .step-check{width:22px; height:22px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--bg-panel); transition:background .2s ease, border-color .2s ease;}
+.checklist li.step-done .step-check{background:var(--accent); border-color:var(--accent);}
+.checklist .step-text{flex:1;}
+.checklist .est{font-size:12.5px; color:var(--ink-soft); white-space:nowrap;}
+.jargon-list{margin:0; padding:0; list-style:none;}
+.jargon-list li{padding:10px 0; border-top:1px solid var(--line); font-size:15px;}
+.jargon-list li:first-child{border-top:none;}
+.jargon-term{font-weight:700; color:var(--terra);}
+.jargon-def{color:var(--ink-soft); display:block; margin-top:2px;}
+.placeholder-note{color:var(--ink-soft); font-size:14.5px;}
+#listenBtn.speaking{background:var(--terra-soft); border-color:var(--terra); color:var(--terra);}
+
+.simplifier-panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:26px;}
+.simp-input{width:100%; min-height:90px; resize:vertical; border:1px solid var(--line); border-radius:10px; padding:14px; font-family:var(--font-body); font-size:15px; color:var(--ink); background:var(--bg); line-height:1.5;}
+.simp-input:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+.simp-actions{margin-top:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
+.simp-out{margin-top:20px; background:var(--terra-soft); border-radius:12px; padding:20px 22px; display:none;}
+.simp-out.show{display:block;}
+.simp-out .simp-label{font-family:var(--font-head); font-weight:600; font-size:12px; color:var(--terra); margin-bottom:8px;}
+.simp-out .simp-line{font-family:var(--font-head); font-size:20px; font-weight:600; line-height:1.4; color:var(--ink);}
+.simp-out .simp-tools{margin-top:12px; display:flex; gap:10px;}
+.simp-out .simp-tools button{font-size:13px; padding:7px 14px;}
+
+.deserializer{display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;}
+@media (max-width:760px){.deserializer{grid-template-columns:1fr;}}
+.photo-mock{background:var(--bg-deep); border:1px solid var(--line); border-radius:14px; padding:20px; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center;}
+.photo-mock svg{width:100%; height:100%;}
+.outline-mock{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:20px;}
+.outline-mock ol{margin:0; padding-left:20px;}
+.outline-mock li{margin-bottom:10px; font-size:15px;}
+.outline-mock li strong{display:block; font-size:13px; color:var(--accent); font-family:var(--font-head);}
+
+footer{border-top:1px solid var(--line); padding:36px 0 48px;}
+.foot-row{display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; color:var(--ink-soft); font-size:14px; align-items:center;}
+.foot-row .btn{padding:10px 18px;}
+
+.mic-btn{padding:10px 16px; font-size:14px;}
+.mic-btn.listening{background:var(--terra-soft); border-color:var(--terra); color:var(--terra); animation:mic-pulse 1.2s ease-in-out infinite;}
+@keyframes mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(193,105,60,.35);}50%{box-shadow:0 0 0 9px rgba(193,105,60,0);}}
+@media (prefers-reduced-motion: reduce){.mic-btn.listening{animation:none;}}
+.mascot-toast{position:fixed; bottom:22px; right:22px; max-width:290px; background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:0 14px 34px rgba(43,36,32,.18); display:flex; gap:12px; align-items:flex-start; transform:translateY(16px) scale(.97); opacity:0; pointer-events:none; transition:transform .3s ease, opacity .3s ease; z-index:60;}
+.mascot-toast.show{transform:translateY(0) scale(1); opacity:1; pointer-events:auto;}
+.mascot-toast .mascot-icon{width:46px; height:46px; flex-shrink:0;}
+.mascot-toast .mascot-icon svg{animation:mascot-bob 1.8s ease-in-out infinite;}
+@keyframes mascot-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.mascot-toast .mascot-body{font-size:13.5px; line-height:1.4; padding-right:14px;}
+.mascot-toast .mascot-body strong{display:block; font-family:var(--font-head); font-size:14px; margin-bottom:2px;}
+.mascot-toast .mascot-close{position:absolute; top:8px; right:10px; background:none; border:none; color:var(--ink-soft); font-size:15px; cursor:pointer; line-height:1;}
+.mascot-toast .mascot-close:focus-visible{outline:2px solid var(--accent);}
+
+@media (prefers-reduced-motion: reduce){*{transition:none !important;} .mascot-toast .mascot-icon svg{animation:none;}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="topbar">
+    <div class="brand">Adaptive<span>Space</span></div>
+    <div class="zen-toggle">
+      <label for="zenSwitch">Warm Zen Mode</label>
+      <button id="zenSwitch" class="switch" role="switch" aria-pressed="false" aria-label="Toggle Warm Zen Mode"></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">The Unheard Student — PS-01</div>
+        <h1>Equal content isn't <em>equal access.</em></h1>
+        <p class="lede">AdaptiveSpace is a low-friction academic workspace that turns dense, intimidating assignments into a clear objective, a time-boxed checklist, and plain-English explanations — built for ADHD, dyslexia, and executive dysfunction.</p>
+        <div class="cta-row">
+          <a href="#demo" class="btn btn-primary">Try the De-Jargon Engine</a>
+          <a href="#simplifier" class="btn btn-ghost">One-Line Simplifier</a>
+        </div>
+      </div>
+      <div class="mock-canvas" aria-hidden="true">
+        <div class="mc-head"><span></span><span></span><span></span></div>
+        <div class="mc-block done">Read assignment overview <span class="mc-time">5m</span></div>
+        <div class="mc-block">Set up starter boilerplate <span class="mc-time">Est. 20m</span></div>
+        <div class="mc-block">Implement stack push/pop logic <span class="mc-time">Est. 35m</span></div>
+        <div class="mc-block">Write 3 test cases <span class="mc-time">Est. 15m</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="barriers" id="barriers">
+    <div class="wrap b-grid">
+      <div class="b-card">
+        <div class="b-tag">ADHD</div>
+        <h3>Blank-canvas paralysis</h3>
+        <p>An empty page with no structure forces a planning decision before any work starts. AdaptiveSpace removes that decision entirely.</p>
+      </div>
+      <div class="b-card">
+        <div class="b-tag">Dyslexia</div>
+        <h3>Jargon decoding fatigue</h3>
+        <p>Dense technical language demands re-reading and slows comprehension. We swap unexplained jargon for plain-English analogies inline.</p>
+      </div>
+      <div class="b-card">
+        <div class="b-tag">Executive Dysfunction</div>
+        <h3>No sense of scale or time</h3>
+        <p>Without a time estimate, tasks feel infinite. Every step ships with a time-box, so starting feels possible.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>The De-Jargon &amp; Chunk Engine</h2>
+        <p>Paste a dense assignment prompt on the left. AdaptiveSpace returns a single clear objective, a time-boxed checklist, and analogies for detected jargon — try it below.</p>
+      </div>
+      <div class="demo-panel">
+        <div class="demo-grid">
+          <div class="demo-col">
+            <div class="demo-label">Raw assignment text</div>
+            <textarea id="rawInput" aria-label="Raw assignment text"></textarea>
+            <div class="demo-actions">
+              <button id="transformBtn" class="btn btn-primary">Transform</button>
+              <button id="micBtnRaw" type="button" class="btn btn-ghost mic-btn" aria-label="Add text by speaking">🎤 Speak</button>
+              <span class="hint">Runs instantly, right in your browser.</span>
+            </div>
+          </div>
+          <div class="demo-col">
+            <div class="demo-label" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <span>Simplified output</span>
+              <button id="listenBtn" class="btn btn-ghost" style="padding:7px 14px; font-size:13px; display:none;" aria-label="Listen to the simplified output">🔊 Listen</button>
+            </div>
+            <div class="game-bar" id="gameBar" style="display:none;">
+              <span class="streak-pill" id="streakPill">🔥 0</span>
+              <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+              <span class="xp-pill" id="xpPill">0 XP</span>
+            </div>
+            <div id="outArea">
+              <p class="placeholder-note">Click "Transform" to see the objective, checklist, and jargon analogies appear here — then hit Listen to hear it read aloud, or tap a step to check it off.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="simplifier">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Instruction Simplifier</h2>
+        <p>Got one confusing line — a rubric note, an email, a professor's comment? Paste it in and get back exactly one plain sentence telling you what to actually do.</p>
+      </div>
+      <div class="simplifier-panel">
+        <textarea id="simpInput" class="simp-input" aria-label="Instruction to simplify">Students are required to submit a comprehensive literature review (minimum 2,500 words) that critically synthesizes at least 8 peer-reviewed sources published within the last five years, formatted per APA 7th edition guidelines, and must demonstrate a clear theoretical framework underpinning the analysis.</textarea>
+        <div class="simp-actions">
+          <button id="simplifyBtn" class="btn btn-primary">Simplify to one line</button>
+          <button id="micBtnSimp" type="button" class="btn btn-ghost mic-btn" aria-label="Add text by speaking">🎤 Speak</button>
+          <span class="hint">Strips jargon, asides, and requirements clutter down to the core task.</span>
+        </div>
+        <div class="simp-out" id="simpOut">
+          <div class="simp-label">In one line</div>
+          <div class="simp-line" id="simpLine"></div>
+          <div class="simp-tools">
+            <button id="simpListenBtn" class="btn btn-ghost">🔊 Listen</button>
+            <button id="simpCopyBtn" class="btn btn-ghost">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Diagram Deserializer</h2>
+        <p>A photographed chalkboard diagram becomes a sequential, screen-reader-friendly outline — no peer translation required.</p>
+      </div>
+      <div class="deserializer">
+        <div class="photo-mock">
+          <svg viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mock chalkboard diagram showing three connected boxes labeled Input, Process, and Output">
+            <rect x="10" y="10" width="220" height="160" rx="8" fill="none" stroke="var(--ink-soft)" stroke-width="1.5"/>
+            <rect x="30" y="35" width="60" height="34" rx="4" fill="none" stroke="var(--accent)" stroke-width="2"/>
+            <text x="60" y="56" font-size="11" text-anchor="middle" fill="var(--ink)" font-family="Atkinson Hyperlegible">Input</text>
+            <rect x="120" y="35" width="70" height="34" rx="4" fill="none" stroke="var(--accent)" stroke-width="2"/>
+            <text x="155" y="56" font-size="11" text-anchor="middle" fill="var(--ink)" font-family="Atkinson Hyperlegible">Process</text>
+            <rect x="75" y="110" width="70" height="34" rx="4" fill="none" stroke="var(--accent)" stroke-width="2"/>
+            <text x="110" y="131" font-size="11" text-anchor="middle" fill="var(--ink)" font-family="Atkinson Hyperlegible">Output</text>
+            <line x1="90" y1="52" x2="120" y2="52" stroke="var(--terra)" stroke-width="2"/>
+            <line x1="155" y1="69" x2="120" y2="110" stroke="var(--terra)" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="outline-mock">
+          <ol>
+            <li><strong>Step 1</strong>Input stage — data enters the system.</li>
+            <li><strong>Step 2</strong>Process stage — the system transforms the input.</li>
+            <li><strong>Step 3</strong>Output stage — the transformed result is produced.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <span>AdaptiveSpace — Track 05, PS-01: The Unheard Student</span>
+    <a href="#demo" class="btn btn-ghost">Back to demo</a>
+  </div>
+</footer>
+
+<div class="mascot-toast" id="mascotToast" role="status" aria-live="polite">
+  <button class="mascot-close" id="mascotClose" aria-label="Dismiss notification">✕</button>
+  <div class="mascot-icon">
+    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="30" cy="34" rx="20" ry="18" fill="var(--accent)"/>
+      <circle cx="30" cy="16" r="13" fill="var(--accent)"/>
+      <path d="M30 16 L42 20 L30 24 Z" fill="var(--terra)"/>
+      <circle cx="24" cy="14" r="3" fill="var(--bg-panel)"/>
+      <circle cx="24" cy="14" r="1.4" fill="var(--ink)"/>
+      <path d="M14 30 Q6 26 8 38 Q16 40 20 32 Z" fill="var(--terra)"/>
+      <path d="M18 46 Q30 54 42 46" stroke="var(--terra)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="mascot-body">
+    <strong id="mascotTitle">Hoot!</strong>
+    <span id="mascotMsg">You have a lesson waiting.</span>
+  </div>
+</div>
+
+<script>
+const SAMPLE = "Design and implement a bounded stack-based data structure supporting push, pop, and peek operations with amortized O(1) time complexity. Your implementation must handle edge cases including stack overflow and underflow conditions gracefully, raising appropriate exceptions. Additionally, write a minimum of three unit tests validating boundary conditions, and include Big-O complexity annotations in your docstrings.";
+document.getElementById('rawInput').value = SAMPLE;
+
+const JARGON = {
+  "amortized": "On average, over many operations — even if one operation is occasionally slower.",
+  "o(1)": "A fancy way of saying \"takes the same amount of time no matter how big the input is.\"",
+  "stack overflow": "When you try to add more items than the structure has room for.",
+  "underflow": "When you try to remove an item, but the structure is already empty.",
+  "big-o": "A way of describing roughly how slow or fast your code gets as the input grows.",
+  "boundary conditions": "The tricky edge cases, like an empty list or the very first/last item.",
+  "docstrings": "Short comments inside your code explaining what a function does."
+};
+
+function splitSentences(text){
+  return text.replace(/\s+/g,' ').trim().split(/(?<=[.!?])\s+/).filter(Boolean);
+}
+
+function estimate(sentence){
+  const words = sentence.split(' ').length;
+  return Math.max(10, Math.min(45, Math.round(words * 1.3 / 5) * 5));
+}
+
+function transform(){
+  const raw = document.getElementById('rawInput').value.trim();
+  const out = document.getElementById('outArea');
+  if(!raw){ out.innerHTML = '<p class="placeholder-note">Paste some assignment text first.</p>'; return; }
+
+  const sentences = splitSentences(raw);
+  const objective = "Build a working stack structure with push, pop, and peek — then prove it works with tests.";
+
+  let checklistHtml = '<ul class="checklist" id="stepList">';
+  checklistHtml += `<li class="step-item" data-index="warmup"><span class="step-check" aria-hidden="true">✓</span><span class="step-text">Warm-up: just read through it once — nothing to write yet</span><span class="est">Est. 3m</span></li>`;
+  sentences.slice(0,3).forEach((s,i)=>{
+    const short = s.length > 70 ? s.slice(0,67).trim() + '…' : s;
+    checklistHtml += `<li class="step-item" data-index="${i}"><span class="step-check" aria-hidden="true">✓</span><span class="step-text">${short}</span><span class="est">Est. ${estimate(s)}m</span></li>`;
+  });
+  checklistHtml += '</ul>';
+
+  const lower = raw.toLowerCase();
+  let found = [];
+  Object.keys(JARGON).forEach(term=>{
+    if(lower.includes(term)) found.push(term);
+  });
+  let jargonHtml = '';
+  if(found.length){
+    jargonHtml = '<ul class="jargon-list">' + found.map(t=>
+      `<li><span class="jargon-term">${t}</span><span class="jargon-def">${JARGON[t]}</span></li>`
+    ).join('') + '</ul>';
+  } else {
+    jargonHtml = '<p class="placeholder-note">No flagged jargon terms detected in this text.</p>';
+  }
+
+  out.innerHTML = `
+    <div class="out-objective"><strong>Objective</strong>${objective}</div>
+    <div class="demo-label">Time-boxed checklist</div>
+    ${checklistHtml}
+    <div class="demo-label">Plain-English analogies</div>
+    ${jargonHtml}
+  `;
+
+  const steps = sentences.slice(0,4).map((s,i)=>`Step ${i+1}: ${s}`).join('. ');
+  const analogies = found.length
+    ? 'Jargon explained. ' + found.map(t=>`${t} means: ${JARGON[t]}`).join('. ')
+    : '';
+  window.__speechText = `Objective: ${objective}. Here is your checklist. ${steps}. ${analogies}`;
+
+  const listenBtn = document.getElementById('listenBtn');
+  listenBtn.style.display = 'inline-flex';
+  listenBtn.classList.remove('speaking');
+  listenBtn.textContent = '🔊 Listen';
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+
+  totalSteps = Math.min(sentences.length, 3) + 1;
+  completedSteps = 0;
+  xp = 0;
+  document.getElementById('gameBar').style.display = 'flex';
+  updateGameBar();
+  document.getElementById('stepList').addEventListener('click', onStepClick);
+
+  showMascot('Hoot!', 'New lesson ready. Tap a step to start your streak.');
+}
+
+document.getElementById('transformBtn').addEventListener('click', transform);
+
+let totalSteps = 0, completedSteps = 0, xp = 0, streak = 2;
+
+function updateGameBar(){
+  const pct = totalSteps ? 10 + (completedSteps/totalSteps*90) : 10;
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('xpPill').textContent = xp + ' XP';
+  document.getElementById('streakPill').textContent = '🔥 ' + streak;
+}
+
+function onStepClick(e){
+  const li = e.target.closest('.step-item');
+  if(!li) return;
+  const done = li.classList.toggle('step-done');
+  if(done){
+    completedSteps++;
+    xp += 10;
+    if(completedSteps === totalSteps){
+      streak++;
+      updateGameBar();
+      showMascot('Lesson complete!', `Whole checklist done. Streak is now ${streak} 🔥`);
+    } else {
+      updateGameBar();
+      showMascot('Nice!', 'Step complete. Keep going, on a roll.');
+    }
+  } else {
+    completedSteps = Math.max(0, completedSteps-1);
+    xp = Math.max(0, xp-10);
+    updateGameBar();
+  }
+}
+
+let mascotTimer;
+function showMascot(title, msg){
+  const toast = document.getElementById('mascotToast');
+  document.getElementById('mascotTitle').textContent = title;
+  document.getElementById('mascotMsg').textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(mascotTimer);
+  mascotTimer = setTimeout(()=> toast.classList.remove('show'), 4200);
+}
+document.getElementById('mascotClose').addEventListener('click', ()=>{
+  document.getElementById('mascotToast').classList.remove('show');
+  clearTimeout(mascotTimer);
+});
+
+const listenBtn = document.getElementById('listenBtn');
+listenBtn.addEventListener('click', ()=>{
+  if(!('speechSynthesis' in window)){
+    listenBtn.textContent = 'Not supported in this browser';
+    return;
+  }
+  const synth = window.speechSynthesis;
+  if(synth.speaking){
+    synth.cancel();
+    listenBtn.classList.remove('speaking');
+    listenBtn.textContent = '🔊 Listen';
+    return;
+  }
+  try{
+    const utter = new SpeechSynthesisUtterance(window.__speechText || '');
+    utter.rate = 0.95;
+    utter.onend = ()=>{ listenBtn.classList.remove('speaking'); listenBtn.textContent = '🔊 Listen'; };
+    utter.onerror = ()=>{ listenBtn.classList.remove('speaking'); listenBtn.textContent = '🔊 Listen'; };
+    synth.speak(utter);
+    listenBtn.classList.add('speaking');
+    listenBtn.textContent = '⏸ Stop';
+  }catch(e){
+    listenBtn.textContent = 'Playback unavailable';
+  }
+});
+
+setTimeout(()=> showMascot('Hoot hoot!', 'You have a lesson waiting — scroll down to try it.'), 1200);
+
+const ACTION_VERBS = ['write','implement','design','create','build','submit','complete','analyze','calculate','explain','describe','develop','construct','prepare','summarize','answer','solve','draft','produce','demonstrate','synthesize'];
+
+function simplifyOneLiner(text){
+  const sentences = splitSentences(text);
+  if(!sentences.length) return '';
+  let best = sentences[0];
+  for(const s of sentences){
+    const low = s.toLowerCase();
+    if(ACTION_VERBS.some(v=>low.includes(v))){ best = s; break; }
+  }
+  best = best.replace(/\([^)]*\)/g,'');
+  best = best.split(/,?\s*(?:including|such as|which|that|with a minimum|providing|ensuring|formatted per|underpinning)/i)[0];
+  best = best.replace(/\s+/g,' ').trim();
+  const words = best.split(' ');
+  if(words.length > 16) best = words.slice(0,16).join(' ') + '…';
+  best = best.charAt(0).toUpperCase() + best.slice(1);
+  if(!/[.!?…]$/.test(best)) best += '.';
+  return best;
+}
+
+document.getElementById('simplifyBtn').addEventListener('click', ()=>{
+  const raw = document.getElementById('simpInput').value.trim();
+  const outBox = document.getElementById('simpOut');
+  const lineEl = document.getElementById('simpLine');
+  if(!raw){ lineEl.textContent = 'Paste an instruction first.'; outBox.classList.add('show'); return; }
+  lineEl.textContent = simplifyOneLiner(raw);
+  outBox.classList.add('show');
+  showMascot('Simplified!', 'One clear sentence, no jargon.');
+});
+
+document.getElementById('simpListenBtn').addEventListener('click', ()=>{
+  if(!('speechSynthesis' in window)) return;
+  const synth = window.speechSynthesis;
+  const text = document.getElementById('simpLine').textContent;
+  if(!text) return;
+  if(synth.speaking){ synth.cancel(); return; }
+  synth.speak(new SpeechSynthesisUtterance(text));
+});
+
+document.getElementById('simpCopyBtn').addEventListener('click', async ()=>{
+  const text = document.getElementById('simpLine').textContent;
+  const btn = document.getElementById('simpCopyBtn');
+  try{
+    await navigator.clipboard.writeText(text);
+    btn.textContent = 'Copied!';
+    setTimeout(()=> btn.textContent = 'Copy', 1500);
+  }catch(e){ btn.textContent = 'Select & copy manually'; }
+});
+
+function setupMic(btnId, textareaId){
+  const btn = document.getElementById(btnId);
+  const ta = document.getElementById(textareaId);
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ btn.textContent = '🎤 Voice not supported here'; btn.disabled = true; return; }
+  const recog = new SR();
+  recog.lang = 'en-US';
+  recog.interimResults = false;
+  recog.continuous = false;
+  let listening = false;
+
+  btn.addEventListener('click', ()=>{
+    if(listening){ recog.stop(); return; }
+    try{ recog.start(); }catch(e){}
+  });
+  recog.onstart = ()=>{ listening = true; btn.classList.add('listening'); btn.textContent = '🎤 Listening…'; };
+  recog.onend = ()=>{ listening = false; btn.classList.remove('listening'); btn.textContent = '🎤 Speak'; };
+  recog.onerror = ()=>{ listening = false; btn.classList.remove('listening'); btn.textContent = '🎤 Mic unavailable — try again'; setTimeout(()=> btn.textContent = '🎤 Speak', 2200); };
+  recog.onresult = (e)=>{
+    const transcript = Array.from(e.results).map(r=>r[0].transcript).join(' ');
+    ta.value = (ta.value.trim() ? ta.value.trim() + ' ' : '') + transcript;
+  };
+}
+setupMic('micBtnRaw', 'rawInput');
+setupMic('micBtnSimp', 'simpInput');
+
+const zenBtn = document.getElementById('zenSwitch');
+zenBtn.addEventListener('click', ()=>{
+  const pressed = zenBtn.getAttribute('aria-pressed') === 'true';
+  zenBtn.setAttribute('aria-pressed', String(!pressed));
+  document.body.classList.toggle('zen', !pressed);
+});
+</script>
+</body>
+</html>
