@@ -49,7 +49,7 @@ h2{font:600 17px var(--fh);margin:0 0 12px}
 .qa{display:grid;gap:8px}
 .qa .row{display:flex;gap:8px}
 .qa .row .btn{flex:1}
-#micBtn.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
+#micBtn.on,#cvMicBtn.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
 input,select,textarea{background:var(--bg);border:1px solid var(--control);border-radius:10px;padding:9px 11px;min-width:0;width:100%}
 textarea{min-height:130px;resize:vertical;font-size:15px}
 .btn{font:600 14px var(--fh);padding:10px 18px;border-radius:10px;border:1px solid transparent;cursor:pointer;background:var(--accent);color:var(--on-accent);width:auto}
@@ -167,6 +167,7 @@ body.calm .two>section:nth-child(2),body.calm .stack>section:last-child,body.cal
     <aside class="card" id="converter" style="position:sticky;top:76px">
       <h2>Study material converter</h2>
       <textarea id="cvText" placeholder="Paste your notes here, or upload a file below…" aria-label="Study material"></textarea>
+      <div class="row"><button class="btn g" id="cvMicBtn" type="button" aria-label="Speak your notes">🎤 Speak notes</button></div>
       <div class="row"><input type="file" id="file" accept=".txt,.md,.pdf,.pptx,.jpg,.jpeg,.png,.webp" aria-label="Upload notes, PDF, PowerPoint, or photo of notes"></div>
       <div class="tabs" style="margin-top:12px" role="tablist">
         <button class="tab" role="tab" data-m="map" aria-selected="true">🗺 Diagram</button>
@@ -267,21 +268,27 @@ function submitTask(){const title=$('tTitle').value.trim();if(!title){$('tTitle'
 $('addBtn').onclick=submitTask;
 $('tTitle').onkeydown=e=>{if(e.key==='Enter')submitTask();if(e.key==='Escape'&&editing){editing=null;$('tTitle').value='';$('addBtn').textContent='Add'}};
 
-/* ---------- speech to text for task dump ---------- */
+/* ---------- speech to text (task dump + study notes) ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let rec=null,listening=false,baseTxt='';
-function stopListen(){listening=false;if(rec){try{rec.stop()}catch(e){}}
- const b=$('micBtn');if(b){b.classList.remove('on');b.textContent='🎤 Speak'}}
-$('micBtn').onclick=()=>{
- if(!SR){toast('Not supported','Voice input isn’t available in this browser — try Chrome.');return}
- if(listening){stopListen();return}
- rec=new SR();rec.lang=navigator.language||'en-US';rec.interimResults=true;rec.continuous=true;rec.maxAlternatives=1;
- baseTxt=$('tTitle').value.trim();if(baseTxt)baseTxt+=' ';
- rec.onstart=()=>{listening=true;$('micBtn').classList.add('on');$('micBtn').textContent='⏹ Stop'};
- rec.onresult=e=>{let txt='';for(let i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;$('tTitle').value=(baseTxt+txt).trim()};
- rec.onerror=()=>stopListen();
- rec.onend=()=>stopListen();
- try{rec.start()}catch(e){stopListen()}};
+let rec=null,activeMic=null;
+function stopListen(){const b=activeMic&&$(activeMic);activeMic=null;if(rec){try{rec.stop()}catch(e){}}
+ if(b){b.classList.remove('on');b.textContent=b.dataset.label}}
+function dictateInto(fieldId,btnId,label,multiline){
+ const b=$(btnId);b.dataset.label=b.textContent;
+ b.onclick=()=>{
+  if(!SR){toast('Not supported','Voice input isn’t available in this browser — try Chrome.');return}
+  if(activeMic===btnId){stopListen();return}
+  stopListen();
+  rec=new SR();rec.lang=navigator.language||'en-US';rec.interimResults=true;rec.continuous=true;rec.maxAlternatives=1;
+  const field=$(fieldId);let base=field.value.trim();if(base)base+=multiline?'\n':' ';
+  rec.onstart=()=>{activeMic=btnId;b.classList.add('on');b.textContent='⏹ Stop'};
+  rec.onresult=e=>{let txt='';for(let i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;field.value=(base+txt).trim()};
+  rec.onerror=()=>stopListen();
+  rec.onend=()=>stopListen();
+  try{rec.start()}catch(e){stopListen()}}}
+dictateInto('tTitle','micBtn','🎤 Speak');
+dictateInto('cvText','cvMicBtn','🎤 Speak notes',true);
+
 function toggleT(t){t.done=!t.done;
  if(t.done){S.total++;touchStreak();award(XPV[t.pri]);if(!$('ov').classList.contains('show'))toast('Nice!','+'+XPV[t.pri]+' XP — task complete.')}
  else{S.total=Math.max(0,S.total-1);award(-XPV[t.pri])}}
@@ -419,7 +426,7 @@ async function readImage(f,onProgress){
  const {data}=await Tesseract.recognize(await f.arrayBuffer(),'eng',{logger:m=>{if(onProgress&&m.status==='recognizing text')onProgress(Math.round(m.progress*100))}});
  return data.text}
 
-$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;
+$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;stopListen();
  const name=f.name.toLowerCase(),cv=$('cvText');
  try{
   if(/\.pdf$/.test(name))cv.value=await readPdf(f);
