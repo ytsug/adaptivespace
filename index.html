@@ -46,10 +46,10 @@ h2{font:600 17px var(--fh);margin:0 0 12px}
 @media (max-width:860px){.layout{grid-template-columns:1fr}}
 .stack{display:grid;gap:20px}
 .two{display:grid;grid-template-columns:1fr;gap:20px} /* stacked: side-by-side squeezed task names into mid-word breaks */
-.qa{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px}
-.qa #tTitle{grid-column:1/-1}
-.qa #addBtn{grid-column:auto}
-@media (max-width:560px){.qa{grid-template-columns:1fr 1fr}.qa #addBtn{grid-column:1/-1}}
+.qa{display:grid;gap:8px}
+.qa .row{display:flex;gap:8px}
+.qa .row .btn{flex:1}
+#micBtn.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
 input,select,textarea{background:var(--bg);border:1px solid var(--control);border-radius:10px;padding:9px 11px;min-width:0;width:100%}
 textarea{min-height:130px;resize:vertical;font-size:15px}
 .btn{font:600 14px var(--fh);padding:10px 18px;border-radius:10px;border:1px solid transparent;cursor:pointer;background:var(--accent);color:var(--on-accent);width:auto}
@@ -85,6 +85,8 @@ ol.bul{padding-left:26px}ol.bul li{padding:8px 12px 8px 4px}
 #tts{display:none;margin-top:10px;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
 #tts select{width:auto;padding:6px 8px}#tts input{width:110px;padding:0}
 #speak.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
+#songBtn.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
+#dumpListen.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
 .toast{position:fixed;bottom:20px;right:20px;max-width:290px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 30px 12px 12px;box-shadow:0 14px 34px rgba(0,0,0,.2);display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(14px);pointer-events:none;transition:.3s;z-index:60;font-size:14px}
 .toast.show{opacity:1;transform:none;pointer-events:auto}.toast .owl{width:40px;height:40px}
 .toast b{display:block;font-family:var(--fh)}
@@ -142,8 +144,9 @@ body.calm .two>section:nth-child(2),body.calm .stack>section:last-child,body.cal
         <h2>Task dump</h2>
         <div class="qa">
           <input id="tTitle" placeholder="Dump it here — assignment, exam, reading… then press Enter" aria-label="Task title">
-          <button class="btn" id="addBtn">Add</button>
+          <div class="row"><button class="btn g" id="micBtn" type="button" aria-label="Speak a task">🎤 Speak</button><button class="btn" id="addBtn">Add</button></div>
         </div>
+        <div class="row" style="margin-top:10px"><button class="btn g" id="dumpListen">🔊 Listen to your tasks</button></div>
         <datalist id="subs"></datalist>
       </section>
 
@@ -164,12 +167,13 @@ body.calm .two>section:nth-child(2),body.calm .stack>section:last-child,body.cal
     <aside class="card" id="converter" style="position:sticky;top:76px">
       <h2>Study material converter</h2>
       <textarea id="cvText" placeholder="Paste your notes here, or upload a file below…" aria-label="Study material"></textarea>
-      <div class="row"><input type="file" id="file" accept=".txt,.md,.pdf" aria-label="Upload notes or PDF"></div>
+      <div class="row"><input type="file" id="file" accept=".txt,.md,.pdf,.pptx,.jpg,.jpeg,.png,.webp" aria-label="Upload notes, PDF, PowerPoint, or photo of notes"></div>
       <div class="tabs" style="margin-top:12px" role="tablist">
         <button class="tab" role="tab" data-m="map" aria-selected="true">🗺 Diagram</button>
         <button class="tab" role="tab" data-m="listen" aria-selected="false">🔊 Listen &amp; Read</button>
         <button class="tab" role="tab" data-m="simplify" aria-selected="false">✨ Simplify</button>
         <button class="tab" role="tab" data-m="instr" aria-selected="false">📋 Instructions</button>
+        <button class="tab" role="tab" data-m="song" aria-selected="false">🎵 Song</button>
       </div>
       <button class="btn" id="convert" style="width:100%">Convert</button>
       <div id="cvOut" aria-live="polite"></div>
@@ -255,12 +259,29 @@ function render(){
 }
 let editing=null;
 function submitTask(){const title=$('tTitle').value.trim();if(!title){$('tTitle').focus();return}
+ stopListen();
  const o={title,sub:'General',due:today(),pri:'medium'};
  if(editing){Object.assign(S.tasks.find(t=>t.id===editing),{title});editing=null;$('addBtn').textContent='Add'}
  else S.tasks.push({id:S.nid++,done:false,...o});
  $('tTitle').value='';$('tTitle').focus();save();render()}
 $('addBtn').onclick=submitTask;
 $('tTitle').onkeydown=e=>{if(e.key==='Enter')submitTask();if(e.key==='Escape'&&editing){editing=null;$('tTitle').value='';$('addBtn').textContent='Add'}};
+
+/* ---------- speech to text for task dump ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null,listening=false,baseTxt='';
+function stopListen(){listening=false;if(rec){try{rec.stop()}catch(e){}}
+ const b=$('micBtn');if(b){b.classList.remove('on');b.textContent='🎤 Speak'}}
+$('micBtn').onclick=()=>{
+ if(!SR){toast('Not supported','Voice input isn’t available in this browser — try Chrome.');return}
+ if(listening){stopListen();return}
+ rec=new SR();rec.lang=navigator.language||'en-US';rec.interimResults=true;rec.continuous=true;rec.maxAlternatives=1;
+ baseTxt=$('tTitle').value.trim();if(baseTxt)baseTxt+=' ';
+ rec.onstart=()=>{listening=true;$('micBtn').classList.add('on');$('micBtn').textContent='⏹ Stop'};
+ rec.onresult=e=>{let txt='';for(let i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;$('tTitle').value=(baseTxt+txt).trim()};
+ rec.onerror=()=>stopListen();
+ rec.onend=()=>stopListen();
+ try{rec.start()}catch(e){stopListen()}};
 function toggleT(t){t.done=!t.done;
  if(t.done){S.total++;touchStreak();award(XPV[t.pri]);if(!$('ov').classList.contains('show'))toast('Nice!','+'+XPV[t.pri]+' XP — task complete.')}
  else{S.total=Math.max(0,S.total-1);award(-XPV[t.pri])}}
@@ -299,11 +320,44 @@ function mindmap(ss,kw){
  const ctr=ss[0].split(' ').slice(0,2).join(' ').replace(/[.,;:]+$/,'').slice(0,16);
  return `<svg viewBox="0 0 580 380" role="img" aria-label="Mind map of your notes">${L}<ellipse cx="${cx}" cy="${cy}" rx="56" ry="26" fill="var(--accent)"/><text x="${cx}" y="${cy+4}" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--on-accent)">${esc(ctr)}</text>${N}</svg>`}
 
-let mode='map',lastConv='',SUM=[],FULL='';
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));if($('cvOut').innerHTML)convert(true)});
+/* ---------- text to song ---------- */
+let songAC=null,songTimer=null,songPlaying=false;
+function stopSong(){songPlaying=false;if(songTimer){clearInterval(songTimer);songTimer=null}
+ if('speechSynthesis' in window)speechSynthesis.cancel();
+ if(songAC){try{songAC.close()}catch(e){}songAC=null}
+ const b=$('songBtn');if(b){b.textContent='🎵 Play song';b.classList.remove('on')}}
+function beat(ac,bpm){
+ const dur=60/bpm,chords=[[0,4,7],[5,9,0],[-2,2,7],[3,7,10]];let step=0;
+ const tick=()=>{if(!songPlaying)return;const t=ac.currentTime;
+  const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(45,t+.15);
+  g.gain.setValueAtTime(.5,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.2);
+  if(step%4===0){const ch=chords[(step/4)%chords.length|0];
+   ch.forEach(semi=>{const co=ac.createOscillator(),cg=ac.createGain();co.type='triangle';co.frequency.value=220*Math.pow(2,semi/12);
+    cg.gain.setValueAtTime(0,t);cg.gain.linearRampToValueAtTime(.05,t+.05);cg.gain.linearRampToValueAtTime(0,t+dur*4-.05);
+    co.connect(cg);cg.connect(ac.destination);co.start(t);co.stop(t+dur*4)})}
+  if(step%2===1){const n=ac.sampleRate*.03,buf=ac.createBuffer(1,n,ac.sampleRate),d=buf.getChannelData(0);
+   for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+   const s=ac.createBufferSource();s.buffer=buf;const hg=ac.createGain();hg.gain.value=.14;s.connect(hg);hg.connect(ac.destination);s.start(t)}
+  step++};
+ tick();songTimer=setInterval(tick,dur*1000)}
+function playSong(lines){
+ if(!('speechSynthesis' in window)){toast('Not supported','Singing isn’t available in this browser.');return}
+ stopSong();songPlaying=true;const b=$('songBtn');if(b){b.textContent='⏹ Stop song';b.classList.add('on')}
+ try{songAC=new(window.AudioContext||window.webkitAudioContext)();beat(songAC,100)}catch(e){}
+ const melody=[1.5,1.7,1.9,1.6,1.8,1.4,1.7,1.6];let i=0;
+ const next=()=>{if(!songPlaying||i>=lines.length){stopSong();return}
+  const u=new SpeechSynthesisUtterance(lines[i]);u.pitch=melody[i%melody.length];u.rate=.82;
+  u.onend=u.onerror=()=>{i++;setTimeout(next,150)};speechSynthesis.speak(u)};
+ next()}
+
+
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));stopSong();if($('cvOut').innerHTML)convert(true)});
 async function convert(quiet){
- const txt=$('cvText').value.trim(),out=$('cvOut');speechSynthesis&&speechSynthesis.cancel();setSpeak(false);
- if(txt.length<40){out.innerHTML='<p class="note">Paste at least a few sentences of notes first.</p>';$('tts').style.display='none';return}
+ const out=$('cvOut');speechSynthesis&&speechSynthesis.cancel();setSpeak(false);stopSong();
+ let txt=$('cvText').value.trim();
+ if(mode==='song'&&txt.length<40){const open=S.tasks.filter(t=>!t.done);
+  if(open.length)txt=open.map(t=>t.title+', for '+t.sub+', due '+dl(t.due)[0]).join('. ')}
+ if(txt.length<40){out.innerHTML='<p class="note">Paste at least a few sentences of notes first'+(mode==='song'?', or add a task above.':'.')+'</p>';$('tts').style.display='none';return}
  const ss=sents(txt),F=freq(txt),kw=Object.entries(F).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]);
  FULL=ss.join('. ');SUM=summarize(ss,F);
  if(mode==='simplify'){
@@ -323,6 +377,16 @@ async function convert(quiet){
     out.innerHTML='<ol class="bul">'+(lines.length?lines:steps).map(s=>`<li>${esc(s)}</li>`).join('')+'</ol>'}
    else out.innerHTML='<p class="note">AI simplify failed — check your API key. Here are the instructions split into steps for now:</p><ol class="bul">'+steps.map(s=>`<li>${esc(s)}</li>`).join('')+'</ol>'
   } else out.innerHTML='<p class="note">Add an Anthropic API key in ⚙ Comfort for AI-simplified wording. Here are the instructions split into steps for now:</p><ol class="bul">'+steps.map(s=>`<li>${esc(s)}</li>`).join('')+'</ol>';
+ } else if(mode==='song'){
+  let lines=null;
+  if(AIK()){
+   out.innerHTML='<p class="note">Writing your song…</p>';
+   const res=await askAI('Turn this into short, fun, upbeat song lyrics about getting these things done — a peppy, silly, sing-song style. Simple words, playful rhymes where you can, 6 to 8 short lines, each under 8 words. Reply with ONLY the lyrics, one line per line, no intro, no outro, no labels.\n\n'+txt.slice(0,2000),500);
+   if(res)lines=res.split(/\n+/).map(s=>s.replace(/^[-•*\d.)\s"]+/,'').trim()).filter(Boolean).slice(0,8);
+  }
+  if(!lines||!lines.length)lines=SUM.length?SUM.map(s=>s.split(' ').slice(0,8).join(' ')):['Time to get it done','One small step, then another','You’ve got this today','Little by little, all the way'];
+  out.innerHTML='<ol class="bul">'+lines.map(s=>`<li>${esc(s)}</li>`).join('')+'</ol><div class="row" style="margin-top:10px"><button class="btn" id="songBtn">🎵 Play song</button></div><p class="note" style="font-size:12px">A little synth beat plus your words sung back to you.</p>';
+  $('songBtn').onclick=()=>{if(songPlaying)stopSong();else{playSong(lines);award(8);save();render();toast('Nice!','+8 XP for making a study song.')}};
  } else out.innerHTML=mode==='map'?mindmap(ss,kw):'<ul class="bul">'+SUM.map(s=>`<li>${esc(s)}</li>`).join('')+'</ul>';
  $('tts').style.display=mode==='listen'?'flex':'none';
  if(!quiet&&txt!==lastConv){lastConv=txt;award(10);save();render();toast('Nice studying!','+10 XP for converting notes.')}}
@@ -333,9 +397,42 @@ async function readPdf(f){
  if(!window.pdfjsLib){await new Promise((ok,no)=>{const s=document.createElement('script');s.src=PDF+'pdf.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});pdfjsLib.GlobalWorkerOptions.workerSrc=PDF+'pdf.worker.min.js'}
  const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let o='';
  for(let i=1;i<=Math.min(d.numPages,30);i++){const c=await(await d.getPage(i)).getTextContent();o+=c.items.map(x=>x.str).join(' ')+'\n'}return o}
+
+const JSZ='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+async function readPptx(f){
+ if(!window.JSZip)await new Promise((ok,no)=>{const s=document.createElement('script');s.src=JSZ;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+ const zip=await JSZip.loadAsync(await f.arrayBuffer());
+ const names=Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n))
+  .sort((a,b)=>(+a.match(/\d+/)[0])-(+b.match(/\d+/)[0]));
+ if(!names.length)return '';
+ let o='';
+ for(let i=0;i<names.length;i++){
+  const xml=await zip.files[names[i]].async('string');
+  const lines=[...xml.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map(m=>m[1]
+   .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'"));
+  if(lines.length)o+='Slide '+(i+1)+': '+lines.join(' ')+'\n'}
+ return o}
+
+const TESS='https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js';
+async function readImage(f,onProgress){
+ if(!window.Tesseract)await new Promise((ok,no)=>{const s=document.createElement('script');s.src=TESS;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+ const {data}=await Tesseract.recognize(await f.arrayBuffer(),'eng',{logger:m=>{if(onProgress&&m.status==='recognizing text')onProgress(Math.round(m.progress*100))}});
+ return data.text}
+
 $('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;
- try{$('cvText').value=/\.pdf$/i.test(f.name)?await readPdf(f):await f.text()}
- catch(err){$('cvOut').innerHTML='<p class="note">Couldn’t read that file — try pasting the text instead.</p>'}};
+ const name=f.name.toLowerCase(),cv=$('cvText');
+ try{
+  if(/\.pdf$/.test(name))cv.value=await readPdf(f);
+  else if(/\.pptx$/.test(name))cv.value=await readPptx(f);
+  else if(/\.(jpe?g|png|webp)$/.test(name)){
+   cv.value='';cv.placeholder='Reading text from photo… this can take a bit';
+   cv.value=(await readImage(f,p=>{cv.placeholder='Reading text from photo… '+p+'%'})).trim();
+   cv.placeholder='Paste your notes here, or upload a file below…';
+   if(!cv.value)$('cvOut').innerHTML='<p class="note">Couldn’t find any readable text in that photo — try a clearer, well-lit shot.</p>'
+  }
+  else cv.value=await f.text();
+ }
+ catch(err){$('cvOut').innerHTML='<p class="note">Couldn’t read that file — try pasting the text instead.</p>';$('cvText').placeholder='Paste your notes here, or upload a file below…'}};
 
 /* text-to-speech with adjustable speed */
 function setSpeak(on){$('speak').classList.toggle('on',on);$('speak').textContent=on?'⏹ Stop':'🔊 Listen'}
@@ -345,6 +442,18 @@ function speak(){if(!('speechSynthesis' in window)){$('speak').textContent='Not 
  u.onend=u.onerror=()=>setSpeak(false);s.speak(u);setSpeak(true)}
 $('speak').onclick=()=>{if('speechSynthesis' in window&&speechSynthesis.speaking){speechSynthesis.cancel();setSpeak(false)}else speak()};
 $('rate').oninput=()=>{$('rateTxt').textContent=(+$('rate').value).toFixed(1)+'×';if('speechSynthesis' in window&&speechSynthesis.speaking)speak()};
+
+/* listen to your dumped tasks */
+function setDumpSpeak(on){const b=$('dumpListen');if(!b)return;b.classList.toggle('on',on);b.textContent=on?'⏹ Stop':'🔊 Listen to your tasks'}
+function dumpSpeak(){
+ if(!('speechSynthesis' in window)){toast('Not supported','Text-to-speech isn’t available in this browser.');return}
+ const s=speechSynthesis;
+ if(s.speaking){s.cancel();setDumpSpeak(false);return}
+ const open=S.tasks.filter(t=>!t.done).sort((a,b)=>((a.due||'9')<(b.due||'9')?-1:(a.due||'9')>(b.due||'9')?1:0)||PR[a.pri]-PR[b.pri]);
+ if(!open.length){toast('All clear','No open tasks to read back yet.');return}
+ const text=open.map(t=>`${t.title}. ${dl(t.due)[0]}, ${t.pri} priority.`).join(' ');
+ const u=new SpeechSynthesisUtterance(text);u.rate=.95;u.onend=u.onerror=()=>setDumpSpeak(false);s.speak(u);setDumpSpeak(true)}
+$('dumpListen').onclick=dumpSpeak;
 
 /* ---------- focus mode, tiny steps ---------- */
 const mk=t=>[['Get set: open what you need, water nearby, phone away',2],['Start ugly: just the first tiny piece of “'+t.title+'”',10],['One more small chunk',15],['Quick check, then celebrate',5]].map(([x,m])=>({t:x,m,done:false}));
