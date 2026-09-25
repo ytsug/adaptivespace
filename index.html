@@ -48,7 +48,7 @@ h2{font:600 17px var(--fh);margin:0 0 12px}
 .two{display:grid;grid-template-columns:1fr;gap:20px} /* stacked: side-by-side squeezed task names into mid-word breaks */
 .qa{display:grid;gap:8px}
 .qa .row{display:flex;gap:8px}
-.qa .row .btn{flex:1}
+.qa .row>*{flex:1}
 #micBtn.on,#cvMicBtn.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
 input,select,textarea{background:var(--bg);border:1px solid var(--control);border-radius:10px;padding:9px 11px;min-width:0;width:100%}
 textarea{min-height:130px;resize:vertical;font-size:15px}
@@ -144,6 +144,10 @@ body.calm .two>section:nth-child(2),body.calm .stack>section:last-child,body.cal
         <h2>Task dump</h2>
         <div class="qa">
           <input id="tTitle" placeholder="Dump it here — assignment, exam, reading… then press Enter" aria-label="Task title">
+          <div class="row">
+            <input type="date" id="tDue" aria-label="Due date">
+            <select id="tPri" aria-label="Priority"><option value="low">Low priority</option><option value="medium" selected>Medium priority</option><option value="high">High priority</option></select>
+          </div>
           <div class="row"><button class="btn g" id="micBtn" type="button" aria-label="Speak a task">🎤 Speak</button><button class="btn" id="addBtn">Add</button></div>
         </div>
         <div class="row" style="margin-top:10px"><button class="btn g" id="dumpListen">🔊 Listen to your tasks</button></div>
@@ -261,12 +265,13 @@ function render(){
 let editing=null;
 function submitTask(){const title=$('tTitle').value.trim();if(!title){$('tTitle').focus();return}
  stopListen();
- const o={title,sub:'General',due:today(),pri:'medium'};
- if(editing){Object.assign(S.tasks.find(t=>t.id===editing),{title});editing=null;$('addBtn').textContent='Add'}
+ const due=$('tDue').value||today(),pri=$('tPri').value||'medium';
+ const o={title,sub:'General',due,pri};
+ if(editing){Object.assign(S.tasks.find(t=>t.id===editing),{title,due,pri});editing=null;$('addBtn').textContent='Add'}
  else S.tasks.push({id:S.nid++,done:false,...o});
- $('tTitle').value='';$('tTitle').focus();save();render()}
+ $('tTitle').value='';$('tDue').value=today();$('tPri').value='medium';$('tTitle').focus();save();render()}
 $('addBtn').onclick=submitTask;
-$('tTitle').onkeydown=e=>{if(e.key==='Enter')submitTask();if(e.key==='Escape'&&editing){editing=null;$('tTitle').value='';$('addBtn').textContent='Add'}};
+$('tTitle').onkeydown=e=>{if(e.key==='Enter')submitTask();if(e.key==='Escape'&&editing){editing=null;$('tTitle').value='';$('tDue').value=today();$('tPri').value='medium';$('addBtn').textContent='Add'}};
 
 /* ---------- speech to text (task dump + study notes) ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -301,7 +306,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]')
   }
  }
  else if(a==='d'){S.tasks=S.tasks.filter(x=>x.id!==id)}
- else if(a==='e'){editing=id;$('tTitle').value=t.title;$('addBtn').textContent='Save';$('tTitle').focus();window.scrollTo({top:0,behavior:'smooth'});return}
+ else if(a==='e'){editing=id;$('tTitle').value=t.title;$('tDue').value=t.due||today();$('tPri').value=t.pri||'medium';$('addBtn').textContent='Save';$('tTitle').focus();window.scrollTo({top:0,behavior:'smooth'});return}
  else toggleT(t)
  save();render()});
 $('hideDone').onchange=render;
@@ -509,7 +514,7 @@ $('ov').onclick=e=>{if(e.target.id==='ov')$('ov').classList.remove('show')};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('ov').classList.remove('show')});
 $('zen').onclick=()=>{const p=$('zen').getAttribute('aria-pressed')==='true';$('zen').setAttribute('aria-pressed',String(!p));document.documentElement.setAttribute('data-theme',p?'light':'dark')};
 if(matchMedia('(prefers-color-scheme:dark)').matches){$('zen').setAttribute('aria-pressed','true');document.documentElement.setAttribute('data-theme','dark')}
-applyPref();render();
+applyPref();$('tDue').value=today();render();
 setTimeout(()=>{const n=S.tasks.filter(t=>!t.done&&t.due&&t.due<=today()).length;toast('Hoot hoot!',n?`You have ${n} task${n>1?'s':''} due today.`:'Nothing due today — nice.')},1200);
 </script>
 </body>
