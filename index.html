@@ -71,7 +71,8 @@ ul{list-style:none;margin:0;padding:0}
 .ib{background:none;border:0;cursor:pointer;color:var(--text-muted);font-size:16px;padding:4px 6px;border-radius:6px}
 .ib:hover{color:var(--accent)}.ib[data-a=d]:hover{color:var(--error)}
 .empty,.note{color:var(--text-muted);font-size:14.5px;padding:6px 2px}
-.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tabs .tab{flex:1;min-width:110px}
 .tab{flex:1;padding:8px;border-radius:10px;border:1px solid var(--control);background:none;cursor:pointer;font:600 14px var(--fh)}
 .tab:hover{background:var(--accent-soft)}
 .tab[aria-selected=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
@@ -80,6 +81,7 @@ ul{list-style:none;margin:0;padding:0}
 #cvOut{margin-top:14px}
 #cvOut svg{width:100%;height:auto;background:var(--alt);border-radius:12px}
 .bul{padding-left:0}.bul li{padding:8px 12px;margin-bottom:6px;background:var(--accent-soft);border-radius:10px;font-size:15.5px}
+ol.bul{padding-left:26px}ol.bul li{padding:8px 12px 8px 4px}
 #tts{display:none;margin-top:10px;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
 #tts select{width:auto;padding:6px 8px}#tts input{width:110px;padding:0}
 #speak.on{background:var(--warning-soft);border-color:var(--warning);color:var(--text)}
@@ -103,7 +105,6 @@ body.lexend{--fb:var(--fh)}
 .big{font:700 clamp(22px,3vw,30px)/1.25 var(--fh);margin:4px 0 8px;overflow-wrap:anywhere}
 .steps .step{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:10px;margin:8px 0;background:var(--bg)}
 .step.done{background:var(--success-soft)}.step.done .tn{text-decoration:line-through;color:var(--text-muted)}.step .tn{flex:1;font-weight:400}
-.clock{font:700 26px var(--fh);font-variant-numeric:tabular-nums;min-width:82px}
 .row select{width:auto}
 body.calm .layout{grid-template-columns:1fr;max-width:720px;margin:0 auto}
 body.calm .two{grid-template-columns:1fr}
@@ -120,7 +121,7 @@ body.calm .two>section:nth-child(2),body.calm .stack>section:last-child,body.cal
 <label><input type="checkbox" id="cSpace"> Roomy spacing</label>
 <label><input type="checkbox" id="cCalm"> Calm view: one thing at a time</label>
 <label style="display:block">AI (optional)<input type="password" id="aiKey" placeholder="Anthropic API key" autocomplete="off"></label>
-<p class="note" style="font-size:12px;margin:0">Powers AI step breakdowns &amp; the Simplify tab. Stored only in your browser, sent only to Anthropic.</p></div></details><label for="zen">Dark Mode</label><button id="zen" class="switch" role="switch" aria-pressed="false" aria-label="Toggle dark mode"></button></div></div></header>
+<p class="note" style="font-size:12px;margin:0">Powers AI step breakdowns &amp; the Simplify/Instructions tabs. Stored only in your browser, sent only to Anthropic.</p></div></details><label for="zen">Dark Mode</label><button id="zen" class="switch" role="switch" aria-pressed="false" aria-label="Toggle dark mode"></button></div></div></header>
 
 <main class="wrap">
   <section class="card stats" aria-label="Progress">
@@ -134,7 +135,6 @@ body.calm .two>section:nth-child(2),body.calm .stack>section:last-child,body.cal
   <section class="card next" aria-label="Next step">
   <div id="nextBody"></div>
   <div class="row"><button class="btn" id="doneBtn">✓ Done</button><button class="btn g" id="readBtn">🔊 Read to me</button><button class="btn g" id="skipBtn">↻ Not this one</button></div>
-  <div class="row"><select id="dur" aria-label="Focus length"><option value="5">5 min</option><option value="10" selected>10 min</option><option value="15">15 min</option><option value="25">25 min</option></select><button class="btn" id="tBtn">▶ Start focus timer</button><span class="clock" id="clock">10:00</span></div>
 </section>
 <div class="layout">
     <div class="stack">
@@ -169,6 +169,7 @@ body.calm .two>section:nth-child(2),body.calm .stack>section:last-child,body.cal
         <button class="tab" role="tab" data-m="map" aria-selected="true">🗺 Diagram</button>
         <button class="tab" role="tab" data-m="listen" aria-selected="false">🔊 Listen &amp; Read</button>
         <button class="tab" role="tab" data-m="simplify" aria-selected="false">✨ Simplify</button>
+        <button class="tab" role="tab" data-m="instr" aria-selected="false">📋 Instructions</button>
       </div>
       <button class="btn" id="convert" style="width:100%">Convert</button>
       <div id="cvOut" aria-live="polite"></div>
@@ -313,6 +314,15 @@ async function convert(quiet){
     SUM=lines.length?lines:SUM;out.innerHTML='<ul class="bul">'+SUM.map(s=>`<li>${esc(s)}</li>`).join('')+'</ul>'}
    else out.innerHTML='<p class="note">AI simplify failed — check your API key, or try Diagram / Listen &amp; Read instead.</p>'
   } else out.innerHTML='<p class="note">Add an Anthropic API key in ⚙ Comfort to turn this on. Here\'s a plain summary for now:</p><ul class="bul">'+SUM.map(s=>`<li>${esc(s)}</li>`).join('')+'</ul>';
+ } else if(mode==='instr'){
+  const steps=ss.slice(0,10);
+  if(AIK()){
+   out.innerHTML='<p class="note">Simplifying instructions…</p>';
+   const res=await askAI('Turn these instructions into a short numbered checklist of concrete action steps, one action per line, for someone who finds multi-step instructions overwhelming. Plain simple language, short sentences (under 14 words), no intro or outro, at most 10 steps.\n\nInstructions:\n'+txt.slice(0,3000),700);
+   if(res){const lines=res.split(/\n+/).map(s=>s.replace(/^[-•*\d.)\s]+/,'').trim()).filter(Boolean).slice(0,10);
+    out.innerHTML='<ol class="bul">'+(lines.length?lines:steps).map(s=>`<li>${esc(s)}</li>`).join('')+'</ol>'}
+   else out.innerHTML='<p class="note">AI simplify failed — check your API key. Here are the instructions split into steps for now:</p><ol class="bul">'+steps.map(s=>`<li>${esc(s)}</li>`).join('')+'</ol>'
+  } else out.innerHTML='<p class="note">Add an Anthropic API key in ⚙ Comfort for AI-simplified wording. Here are the instructions split into steps for now:</p><ol class="bul">'+steps.map(s=>`<li>${esc(s)}</li>`).join('')+'</ol>';
  } else out.innerHTML=mode==='map'?mindmap(ss,kw):'<ul class="bul">'+SUM.map(s=>`<li>${esc(s)}</li>`).join('')+'</ul>';
  $('tts').style.display=mode==='listen'?'flex':'none';
  if(!quiet&&txt!==lastConv){lastConv=txt;award(10);save();render();toast('Nice studying!','+10 XP for converting notes.')}}
@@ -336,10 +346,9 @@ function speak(){if(!('speechSynthesis' in window)){$('speak').textContent='Not 
 $('speak').onclick=()=>{if('speechSynthesis' in window&&speechSynthesis.speaking){speechSynthesis.cancel();setSpeak(false)}else speak()};
 $('rate').oninput=()=>{$('rateTxt').textContent=(+$('rate').value).toFixed(1)+'×';if('speechSynthesis' in window&&speechSynthesis.speaking)speak()};
 
-/* ---------- focus mode, tiny steps, timer ---------- */
+/* ---------- focus mode, tiny steps ---------- */
 const mk=t=>[['Get set: open what you need, water nearby, phone away',2],['Start ugly: just the first tiny piece of “'+t.title+'”',10],['One more small chunk',15],['Quick check, then celebrate',5]].map(([x,m])=>({t:x,m,done:false}));
-let skip=0,tm=null,left=0,run=false;
-const fmt=n=>String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');
+let skip=0;
 const cur=()=>S.tasks.find(t=>t.id==$('next').dataset.id);
 function renderNext(){
  const L=S.tasks.filter(t=>!t.done).sort((a,b)=>((a.due||'9')<(b.due||'9')?-1:(a.due||'9')>(b.due||'9')?1:0)||PR[a.pri]-PR[b.pri]),el=$('nextBody');
@@ -363,11 +372,6 @@ $('doneBtn').onclick=()=>{const t=cur();if(t){toggleT(t);save();render()}};
 $('skipBtn').onclick=()=>{skip++;renderNext()};
 $('readBtn').onclick=()=>{const t=cur();if(!t||!('speechSynthesis' in window))return;speechSynthesis.cancel();
  const u=new SpeechSynthesisUtterance(t.title+'. '+(t.steps||[]).filter(x=>!x.done).map((x,i)=>'Step '+(i+1)+': '+x.t).join('. '));u.rate=.95;speechSynthesis.speak(u)};
-$('tBtn').onclick=()=>{if(run){clearInterval(tm);run=false;$('tBtn').textContent='▶ Resume';return}
- if(left<=0)left=+$('dur').value*60;run=true;$('tBtn').textContent='⏸ Pause';
- tm=setInterval(()=>{left--;$('clock').textContent=fmt(Math.max(0,left));if(left<=0){clearInterval(tm);run=false;$('tBtn').textContent='▶ Start focus timer';award(5);save();render();toast('Focus block done! 🎉','+5 XP. Take a 2-minute break, or keep going.')}},1000)};
-$('dur').onchange=()=>{if(!run){left=0;$('clock').textContent=fmt(+$('dur').value*60)}};
-
 /* ---------- comfort settings ---------- */
 S.pref=S.pref||{};
 function applyPref(){const p=S.pref,r=document.documentElement.style;
